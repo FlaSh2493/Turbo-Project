@@ -81,6 +81,7 @@ pnpm install
 | afds lint 래칫                              | pre-push                       | 유지                              | 기준선 래칫                                                |
 | knip·경계 검사                              | pre-push                       | 유지                              | 기준선·구조 계약                                           |
 | check-types                                 | pre-push(pre-commit 에서 옮김) | 유지                              | d.ts 계약 — **훅만이면 건너뛰기 한 번에 main 에 들어간다** |
+| PR 위험 등급 판정(`governance judge`)       | pre-push 끝(막지 않음)         | —                                 | 열린 PR 에 등급 라벨·리뷰어만 붙인다                       |
 | afds-registry lint `--max-warnings 0`       | pre-commit                     | 유지                              | 기준 0 짜리 래칫                                           |
 | storybook lint                              | pre-commit                     | **뺐다**                          | 3파일, 래칫 아님                                           |
 | prettier 서식                               | pre-commit `--write`           | **뺐다**(`format:check` step)     | 서식 — 어긋나도 판정 영향 없음                             |

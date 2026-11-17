@@ -1,0 +1,37 @@
+{
+  "name": "@turbo-project/mutation",
+  "version": "0.0.0",
+  "description": "팀 레포 공통 뮤테이션 테스트. Stryker와 공통 설정, 실행 명령을 준다",
+  "type": "module",
+  "bin": {
+    "mutation": "./cli.mjs"
+  },
+  "exports": {
+    "./base": "./src/base.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1"
+  },
+  "peerDependencies": {
+    "vitest": ">=2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlaSh2493/Turbo-Project.git",
+    "directory": "packages/mutation"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

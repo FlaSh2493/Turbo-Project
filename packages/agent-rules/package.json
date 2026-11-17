@@ -1,0 +1,32 @@
+{
+  "name": "@turbo-project/agent-rules",
+  "version": "0.0.0",
+  "description": "팀 레포 공통 에이전트 지침. AGENTS.md와 .agents/rules/common/를 만든다",
+  "type": "module",
+  "bin": {
+    "agent-rules": "./cli.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "src",
+    "rules",
+    "templates"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlaSh2493/Turbo-Project.git",
+    "directory": "packages/agent-rules"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

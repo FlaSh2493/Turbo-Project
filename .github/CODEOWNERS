@@ -1,0 +1,20 @@
+# GitHub가 Code Owner 승인을 요구할 경로와 오너. 등급은 이 파일로 정하지 않는다. 테스트가 증명하지 못하는 경로(CI·배포, 빌드 설정, 모든 요청이 거쳐 가는 코드)만 넣는다.
+# 첫 오너가 메인 오너다. 메인 오너는 ruleset 우회 목록에 둬서 자기 PR을 셀프머지한다.
+# 아래 줄이 위 줄을 덮어쓴다. 오너 없이 적은 줄은 그 경로를 승인 대상에서 뺀다.
+
+/.github/workflows/ @FlaSh2493
+/.github/CODEOWNERS @FlaSh2493
+
+# 문서는 막지 않는다.
+*.md
+
+/package.json @FlaSh2493
+/pnpm-lock.yaml @FlaSh2493
+/pnpm-workspace.yaml @FlaSh2493
+/.npmrc @FlaSh2493
+/.nvmrc @FlaSh2493
+/.claude/settings.json @FlaSh2493
+/lefthook.yml @FlaSh2493
+/.lefthook/ @FlaSh2493
+/turbo.json @FlaSh2493
+/.changeset/config.json @FlaSh2493

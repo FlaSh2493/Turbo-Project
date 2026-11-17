@@ -1,0 +1,33 @@
+{
+  "name": "@turbo-project/governance",
+  "version": "0.0.0",
+  "description": "팀 레포 공통 거버넌스. 위험 등급 판정과 공통 기준(criteria.md)을 들고, 레포에는 CODEOWNERS와 PR 템플릿을 처음 한 번 만든다",
+  "type": "module",
+  "bin": {
+    "governance": "./cli.mjs"
+  },
+  "files": [
+    "cli.mjs",
+    "criteria.md",
+    "src",
+    "scripts",
+    "templates"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs test/scripts/*.check.mjs"
+  },
+  "dependencies": {
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlaSh2493/Turbo-Project.git",
+    "directory": "packages/governance"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

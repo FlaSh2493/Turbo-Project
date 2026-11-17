@@ -19,3 +19,5 @@ tsconfig.tsbuildinfo
 coverage
 .omc
 **/.claude/settings.local.json
+.stryker-tmp*
+reports/mutation
