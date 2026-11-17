@@ -1,6 +1,6 @@
 # Turbo Project — Agentic Front System
 
-> AI 에이전트 친화적인 프론트엔드 디자인 시스템 모노레포
+> Design System — AI 에이전트 친화적인 프론트엔드 디자인 시스템 모노레포
 
 ## 요구 환경
 
