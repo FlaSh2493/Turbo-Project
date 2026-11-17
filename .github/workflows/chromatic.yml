@@ -1,30 +1,9 @@
-# Chromatic으로 Storybook 배포
-# - PR 오픈/업데이트: 변경분만 스냅샷하는 프리뷰 빌드
-# - workflow_dispatch: 정식(릴리즈) 빌드. release.yml이 afds publish 직후 dispatch한다.
-#   전체 스냅샷 + 현재 브랜치 자동 승인으로 published Storybook permalink를 최신 정식 버전으로 유지한다.
+# Chromatic으로 Storybook 배포 — 현재 꺼져 있다(수동 실행 전용).
+# 저장소에 CHROMATIC_PROJECT_TOKEN 시크릿이 없다. Storybook 배포는 deploy-storybook.yml(GitHub Pages)이 맡는다.
+# 다시 켜려면 시크릿을 등록하고 `pull_request` 트리거를 되살린다.
 name: Chromatic
 
 on:
-  # PR이 열리거나 업데이트될 때 실행
-  pull_request:
-    # base(대상) 브랜치 필터다. 레포 실제 네이밍은 feat/ 이고 feature/ 브랜치는 0건이라
-    # feat/* 를 base 로 쓰는 PR 이 CI 없이 머지되고 있었다 (feat/ ≠ feature/).
-    branches: ['main', 'develop', 'feature/**', 'feat/**']
-    types: [opened, synchronize, reopened]
-    # paths 필터를 두지 않는다 — 이유가 둘 있다.
-    #
-    # 1. `UI Tests` 는 Chromatic 앱이 올리는 커밋 상태다. 이 워크플로가 안 돌면 그 상태가
-    #    **보고되지 않으므로**, paths 필터가 있는 채로 `UI Tests` 를 필수 체크로 지정하면
-    #    해당 경로를 건드리지 않는 PR 이 "expected but not reported" 로 영구히 막힌다.
-    #    필터를 지우는 것이 나중에 `UI Tests` 를 필수로 올릴 수 있는 전제다.
-    # 2. 비용이 거의 늘지 않는다. TurboSnap 이 무관한 PR 을 스냅샷 0장으로 끝낸다
-    #    (실측: #97·#98 은 CSS 0건 변경 → "Bypassed 405 snapshots", 과금 스냅샷 0).
-    #    남는 비용은 Storybook 빌드 러너 시간뿐이다(~1.5~2분/PR).
-    #
-    # 주의: 필터 제거만으로는 아무것도 막지 않는다. `exitZeroOnChanges: true` 때문에
-    # 이 워크플로의 `chromatic` 체크는 시각 변경이 있어도 초록이다 — 실제 게이트는
-    # `UI Tests` 하나뿐이고, 그것을 필수로 올리는 것은 별개 작업이다.
-
   # 정식 배포(릴리즈) 및 수동 실행
   workflow_dispatch:
     inputs:
