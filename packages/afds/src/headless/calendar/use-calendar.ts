@@ -108,6 +108,7 @@ export interface UseCalendarMonthResult {
 }
 
 export function useCalendarMonth(state: CalendarState, locale: string): UseCalendarMonthResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { gridProps, weekDays } = useAriaCalendarGrid({ weekdayStyle: 'short' }, state as any)
   const weeksInMonth = getWeeksInMonth(state.visibleRange.start, locale)
   const weeks = Array.from(
@@ -135,6 +136,7 @@ export function useCalendarCell(state: CalendarState, date: CalendarDate): UseCa
     isFocused,
     isOutsideVisibleRange,
     formattedDate,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useAriaCalendarCell({ date }, state as any, ref)
 
   const tz = getLocalTimeZone()

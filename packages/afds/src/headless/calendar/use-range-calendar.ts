@@ -194,6 +194,7 @@ export function useRangeCalendarCell(
     isFocused,
     isOutsideVisibleRange,
     formattedDate,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useAriaCalendarCell({ date }, state as any, ref)
 
   const tz = getLocalTimeZone()

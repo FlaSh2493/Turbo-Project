@@ -11,19 +11,21 @@ pre-commit:
     # oxlint --fix → ESLint 잔여(no-restricted-syntax) --fix.
     # 앞의 `-A all -D typescript/ban-ts-comment` 는 검사 전용이다 — oxlint --fix 는 `@ts-ignore` 를
     # `@ts-expect-error` 로 조용히 고쳐 통과시키지만 ESLint(이전 lint-staged)는 오류로 막았다. 그 동작을 유지한다.
+    # ESLint `--fix-type` 에서 `directive` 를 뺀다 — ESLint 는 oxlint 가 맡은 규칙의 disable 지시문을 미사용으로 보고
+    # 지워 버린다. 지워지면 그 경고가 되살아나 afds lint 래칫(pre-push)이 실패한다.
     - name: lint afds
       root: packages/afds/
       glob: '*.{ts,tsx,js,jsx}'
       # root 는 문자열 접두사로 거른다 — `packages/afds-registry/**` 도 걸려 `-registry/...` 로 잘린 경로가 넘어온다.
       exclude:
         - 'packages/afds-registry/**'
-      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --fix-type problem,suggestion,layout --no-warn-ignored {staged_files}
       stage_fixed: true
 
     - name: lint afds-registry
       root: packages/afds-registry/
       glob: '*.{ts,tsx,js,jsx}'
-      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --fix-type problem,suggestion,layout --no-warn-ignored {staged_files}
       stage_fixed: true
 
     # 파일 하나만 보여도 설정이 그 패키지 전체 기준이라 3파일 전체를 돈다.
@@ -39,7 +41,7 @@ pre-commit:
         - 'packages/afds/**'
         - 'packages/afds-registry/**'
         - 'apps/storybook/**'
-      run: packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json -A all -D typescript/ban-ts-comment {staged_files} && packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      run: packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json -A all -D typescript/ban-ts-comment {staged_files} && packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json --fix {staged_files} && pnpm exec eslint --fix --fix-type problem,suggestion,layout --no-warn-ignored {staged_files}
       stage_fixed: true
 
     - name: prettier

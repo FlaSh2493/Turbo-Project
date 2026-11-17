@@ -62,6 +62,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
         data-slot="scroll-area"
         className={cn('relative overflow-hidden', className)}
         {...props}
+        // eslint-disable-next-line no-restricted-syntax -- 거터 폭을 하위로 전파하는 CSS 변수
         style={
           {
             // **정의는 여기 한 곳이다.** CSS 변수는 아래로만 상속되는데 Scrollbar 는 Viewport 의
@@ -115,6 +116,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
                 'data-[has-overflow-y]:[--scroll-area-gutter:var(--scrollbar-track-size)]',
               contentClassName,
             )}
+            // eslint-disable-next-line no-restricted-syntax -- base-ui Content는 inline 너비 0이 필요
             style={{ minWidth: 0 }}
           >
             {children}
@@ -136,6 +138,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
           offsetEnd={offsetXEnd}
           data-hide-horizontal={hideHorizontal}
           className="data-[hide-horizontal=true]:invisible"
+          // eslint-disable-next-line no-restricted-syntax -- offset/스타일은 런타임 prop 기반 동적 값
           style={scrollBarHorizontalStyle}
         />
         <ScrollAreaPrimitive.Corner data-slot="scroll-area-corner" />
@@ -172,6 +175,7 @@ export const ScrollBar = React.forwardRef<HTMLDivElement, ScrollBarProps>(
       data-slot="scroll-area-scrollbar"
       orientation={orientation as 'vertical' | 'horizontal'}
       className={cn(scrollBarVariants({ orientation, className }))}
+      // eslint-disable-next-line no-restricted-syntax -- offset prop을 CSS 변수로 주입
       style={
         {
           '--scrollbar-offset-start': `${offsetStart}px`,

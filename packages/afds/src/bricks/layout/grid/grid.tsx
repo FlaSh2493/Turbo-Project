@@ -52,6 +52,7 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
         ref={ref}
         data-slot="grid"
         className={cn(gridVariants({ flow, align, justify, gap, gapX, gapY }), className)}
+        // eslint-disable-next-line no-restricted-syntax -- prop으로 받은 columns/rows를 grid CSS로 동적 매핑
         style={{
           ...style,
           ...(typeof columns === 'number'

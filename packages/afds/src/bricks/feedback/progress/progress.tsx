@@ -140,6 +140,7 @@ export const ProgressValue = forwardRef<HTMLSpanElement, ProgressValueProps>(
           aria-hidden="true"
           data-slot="progress-value-foreground"
           className="pointer-events-none absolute inset-0"
+          // eslint-disable-next-line no-restricted-syntax -- value 비례 클립 영역은 런타임 계산값
           style={{ clipPath: `inset(0 ${100 - percentage}% 0 0)` }}
         >
           <span

@@ -20,6 +20,7 @@ export const FadeIn = forwardRef<HTMLElement, FadeInProps>(
           '[animation:enter_var(--fi-duration)_ease-out_both] [animation-delay:var(--fi-delay,0ms)] [--tw-enter-opacity:0]',
           className,
         )}
+        // eslint-disable-next-line no-restricted-syntax -- prop으로 받은 duration/delay를 CSS 변수로 주입
         style={
           {
             '--fi-duration': `${duration}ms`,

@@ -92,6 +92,7 @@ export const FadeSwap = forwardRef<HTMLDivElement, FadeSwapProps>(
         ref={ref}
         data-slot="fade-swap"
         className={cn(className)}
+        // eslint-disable-next-line no-restricted-syntax -- phase/duration에 따라 동적으로 계산되는 애니메이션 스타일
         style={phase !== 'visible' ? ANIMATION[phase](duration) : {}}
         onAnimationEnd={handleAnimationEnd}
         {...props}

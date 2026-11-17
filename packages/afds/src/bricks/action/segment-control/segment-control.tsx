@@ -68,6 +68,7 @@ export const SegmentControlPrimitiveIndicator = React.forwardRef<
     ref={ref}
     data-slot="segment-control-indicator"
     className={cn(className)}
+    // eslint-disable-next-line no-restricted-syntax -- indicator 위치는 런타임 계산값
     style={{
       left,
       width,

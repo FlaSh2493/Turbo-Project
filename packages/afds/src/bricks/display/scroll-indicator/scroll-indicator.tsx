@@ -91,6 +91,7 @@ export const ScrollIndicator = forwardRef<HTMLDivElement, ScrollIndicatorProps>(
           <div className={scrollIndicatorBodyBase} />
           <div
             className={scrollIndicatorViewportBase}
+            // eslint-disable-next-line no-restricted-syntax -- 뷰포트 박스 위치는 스크롤 상태 기반 동적 값
             style={{ left: viewportBoxLeft, width: SCROLL_INDICATOR_VIEWPORT_WIDTH }}
             onMouseDown={handleMouseDown}
           />
