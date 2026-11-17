@@ -13,10 +13,11 @@
   pnpm exec governance judge --create <gh pr create 인자>   ← PR을 열 때
   pnpm exec governance judge   ← base를 바꾼 뒤, push할 때마다(pre-push 훅)
       │         1. 열린 PR이 없으면 아무것도 하지 않는다. --create면 판정한 뒤 PR을 연다
-      │         2. 승격·백포트, revert면 low로 끝난다
-      │         3. 아니면 새 세션의 Claude가 high·medium 신호와 테스트 없음을 판정한다
-      │         4. PR 본문에 `## 위험 등급`, 라벨 risk:low/medium/high, 리뷰어를 붙인다
-      │         5. 테스트 없음이면 실패로 끝난다
+      │         2. main으로 가는 PR이면 출처 브랜치를 확인한다. 틀리면 실패로 끝난다
+      │         3. 승격·백포트, revert면 low로 끝난다
+      │         4. 아니면 새 세션의 Claude가 high·medium 신호와 테스트 없음을 판정한다
+      │         5. PR 본문에 `## 위험 등급`, 라벨 risk:low/medium/high, 리뷰어를 붙인다
+      │         6. 테스트 없음이면 실패로 끝난다
       ▼
 GitHub
   필수 검사 → 머지
@@ -98,6 +99,10 @@ PR마다 등급을 하나 매긴다. 판정은 PR을 올리는 쪽의 등급 스
 위 신호가 하나도 없는 변경, 보호 브랜치(`main`, `develop`, `staging`)끼리 오가는 같은 레포의 승격·백포트 PR, 원래 PR이 이 레포에서 머지된 revert PR. 승격·백포트와 revert는 Claude 판정 없이 low다.
 
 revert PR은 high 경로를 되돌리는 경우에도 low다. 되돌리기를 늦추지 않는다. CODEOWNERS 경로를 되돌리면 GitHub의 Code Owner 승인은 걸리므로, 장애 중이면 메인 오너가 우회해서 머지한다.
+
+## main으로 가는 PR
+
+`main`으로는 보호 브랜치(`develop`, `staging`)나 `hotfix/*`, `release/*`에서만 PR을 연다. 체리픽이나 운영 버그 수정도 `hotfix/*`로 보낸다. 출처가 틀린 PR에는 `governance judge`가 등급을 붙이지 않고 실패로 끝나며, base를 바꾼 뒤 다시 돌리면 된다. `--create`로 열 때는 PR을 만들지 않고 실패로 끝난다. 웹이나 `gh`로 직접 여는 것은 막지 않는다.
 
 ## revert
 
