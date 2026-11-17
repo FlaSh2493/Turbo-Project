@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash(git commit*--no-veri*)",
+      "Bash(git -* commit*--no-veri*)",
+      "Bash(git commit* -n*)",
+      "Bash(git -* commit* -n*)"
+    ],
+    "deny": [
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push *:main)",
+      "Bash(git push *:main *)",
+      "Bash(git push *:refs/heads/main)",
+      "Bash(git push *:refs/heads/main *)",
+      "Bash(git push * +main)",
+      "Bash(git push * +main *)",
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f*)",
+      "Bash(gh pr merge*)",
+      "Bash(git push*--no-veri*)",
+      "Bash(git -* push*--no-veri*)",
+      "Bash(git -c*core.hooks*)",
+      "Bash(git config*core.hooks* *)",
+      "Bash(git config*--unset*core.hooks*)",
+      "Bash(*HUSKY=*)",
+      "Bash(*LEFTHOOK=*)",
+      "Bash(*LEFTHOOK_EXCLUDE=*)",
+      "Bash(*lefthook uninstall*)"
+    ]
+  },
+  "enabledPlugins": {
+    "session-wrap@team-attention-plugins": true,
+    "clarify@team-attention-plugins": true
+  }
+}

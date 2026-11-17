@@ -1,0 +1,159 @@
+{
+  "shadow": {
+    "1": {
+      "value": {
+        "offsetX": "0",
+        "offsetY": "4px",
+        "blur": "30px",
+        "spread": "0",
+        "color": "rgba(0, 0, 0, 0.1)"
+      },
+      "type": "shadow"
+    },
+    "2": {
+      "value": {
+        "offsetX": "0",
+        "offsetY": "1px",
+        "blur": "20px",
+        "spread": "0",
+        "color": "rgba(0, 0, 0, 0.16)"
+      },
+      "type": "shadow"
+    }
+  },
+  "duration": {
+    "100": {
+      "value": "100ms",
+      "type": "dimension"
+    },
+    "200": {
+      "value": "200ms",
+      "type": "dimension"
+    },
+    "300": {
+      "value": "300ms",
+      "type": "dimension"
+    },
+    "500": {
+      "value": "500ms",
+      "type": "dimension"
+    },
+    "700": {
+      "value": "700ms",
+      "type": "dimension"
+    },
+    "1000": {
+      "value": "1000ms",
+      "type": "dimension"
+    },
+    "3000": {
+      "value": "3000ms",
+      "type": "dimension"
+    },
+    "5000": {
+      "value": "5000ms",
+      "type": "dimension"
+    }
+  },
+  "text": {
+    "heading0": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_36}",
+        "lineHeight": "{typography.lineHeight.h_52}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "heading1": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_24}",
+        "lineHeight": "{typography.lineHeight.h_36}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "heading2": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_20}",
+        "lineHeight": "{typography.lineHeight.h_28}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "title1": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_18}",
+        "lineHeight": "{typography.lineHeight.h_26}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "title2": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_16}",
+        "lineHeight": "{typography.lineHeight.h_26}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "title3": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_14}",
+        "lineHeight": "{typography.lineHeight.h_24}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    },
+    "title4": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_12}",
+        "lineHeight": "{typography.lineHeight.h_16}",
+        "fontWeight": "{typography.fontWeight.Bold}",
+        "fontFeatureSettings": "'tnum' 1, 'lnum' 1"
+      },
+      "type": "typography"
+    },
+    "body1": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_16}",
+        "lineHeight": "{typography.lineHeight.h_26}",
+        "fontWeight": "{typography.fontWeight.Medium}"
+      },
+      "type": "typography"
+    },
+    "body2": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_14}",
+        "lineHeight": "{typography.lineHeight.h_24}",
+        "fontWeight": "{typography.fontWeight.Medium}",
+        "fontFeatureSettings": "'tnum' 1, 'lnum' 1"
+      },
+      "type": "typography"
+    },
+    "body3": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_12}",
+        "lineHeight": "{typography.lineHeight.h_16}",
+        "fontWeight": "{typography.fontWeight.Medium}",
+        "fontFeatureSettings": "'tnum' 1, 'lnum' 1"
+      },
+      "type": "typography"
+    },
+    "caption1": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_12}",
+        "lineHeight": "{typography.lineHeight.h_16}",
+        "fontWeight": "{typography.fontWeight.Medium}"
+      },
+      "type": "typography"
+    },
+    "caption2": {
+      "value": {
+        "fontSize": "{typography.fontSize.s_10}",
+        "lineHeight": "{typography.lineHeight.h_16}",
+        "fontWeight": "{typography.fontWeight.Bold}"
+      },
+      "type": "typography"
+    }
+  }
+}

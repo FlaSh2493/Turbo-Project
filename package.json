@@ -1,7 +1,7 @@
 {
   "name": "turbo-project",
   "version": "1.0.0",
-  "description": "Turbo Project",
+  "description": "Agent Friendly Design System monorepo",
   "type": "module",
   "packageManager": "pnpm@10.24.0",
   "private": true,
@@ -14,24 +14,40 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "check-types": "tsc --build --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check-types": "turbo check-types",
     "storybook": "turbo storybook",
+    "storybook-built": "turbo storybook-built",
     "build-storybook": "turbo build-storybook",
-    "prepare": "husky"
+    "prepare": "lefthook install || echo \"lefthook 설치 실패 — docs/info/harness.md 「훅 설치」 참조\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm --filter @turbo-project/afds build && changeset publish",
+    "doctor": "npx react-doctor@latest",
+    "knip": "knip --treat-config-hints-as-errors"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@turbo-project/eslint-config": "workspace:*",
+    "@turbo-project/prettier-config": "workspace:*",
+    "@turbo-project/tsconfig": "workspace:*",
     "eslint": "^9.39.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.5.2",
+    "eslint-plugin-unused-imports": "4.3.0",
+    "knip": "6.43.0",
+    "lefthook": "2.2.0",
     "prettier": "^3.7.4",
     "turbo": "^2.7.2",
-    "@turbo-project/eslint-config": "workspace:*",
-    "@turbo-project/tsconfig": "workspace:*",
-    "@turbo-project/prettier-config": "workspace:*",
     "typescript": "^5.9.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@types/glob": "^9.0.0",
+    "@types/yargs": "^17.0.35",
+    "colors": "^1.4.0",
+    "glob": "^11.1.0",
+    "yargs": "^18.0.0"
   }
 }

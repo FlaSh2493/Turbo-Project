@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@source "../**/*.{ts,tsx}";
+
+@import '../../tokens/tokens.css';
+@import '../../tokens/tokens.semantic.css';
+@import '../../tokens/tokens.custom.css';
+@import '../../tokens/tokens.motion.css';
+@import '../../tokens/tokens.effects.css';

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["doctor.config.ts"],
+      "ignoreBinaries": ["oxlint"],
+      "ignoreDependencies": [
+        "@turbo-project/prettier-config",
+        "@types/glob",
+        "@types/yargs",
+        "colors",
+        "glob",
+        "yargs"
+      ]
+    },
+    "apps/storybook": {
+      "storybook": {
+        "config": [".storybook/main.cjs"]
+      },
+      "ignoreDependencies": ["@vitejs/plugin-react", "chromatic", "tw-animate-css"]
+    },
+    "packages/afds": {
+      "entry": ["token-bridge.config.ts"],
+      "ignoreDependencies": [
+        "@storybook/blocks",
+        "@storybook/react-vite",
+        "@tailwindcss/cli",
+        "@tanstack/react-table",
+        "oxlint"
+      ]
+    },
+    "packages/config/eslint-config": {
+      "ignoreDependencies": ["@types/react"]
+    },
+    "packages/figma-token-bridge": {
+      "ignoreDependencies": ["tsx"]
+    },
+    "packages/afds-registry": {
+      "entry": ["src/compositions/*/index.ts", "src/compositions/index.ts"]
+    }
+  },
+  "ignoreWorkspaces": [
+    "packages/config/prettier-config",
+    "packages/config/tsconfig",
+    "packages/figma-variables-exporter"
+  ],
+  "ignoreIssues": {
+    "packages/afds/scripts/import-figma-tokens.ts": ["files"],
+    "packages/afds/scripts/lib/citation-antecedent.ts": ["exports", "types"],
+    "packages/afds/scripts/lib/lint-ratchet.ts": ["types"],
+    "packages/afds/scripts/tokens-manifest.ts": ["types"],
+    "packages/afds/src/bricks/action/floating-action-bar/floating-action-bar.tsx": ["types"],
+    "packages/afds/src/bricks/action/segment-control/segment-control.tsx": ["exports", "types"],
+    "packages/afds/src/bricks/display/scroll-indicator/scroll-indicator.style.ts": ["exports"],
+    "packages/afds/src/bricks/display/typography/typography.style.ts": ["types"],
+    "packages/afds/src/bricks/feedback/progress/progress.tsx": ["exports"],
+    "packages/afds/src/bricks/feedback/spinner/spinner.tsx": ["types"],
+    "packages/afds/src/bricks/feedback/toast/__test__/test-utils.tsx": ["files"],
+    "packages/afds/src/bricks/feedback/toast/toast.style.ts": ["exports"],
+    "packages/afds/src/bricks/form/calendar/calendar.style.ts": ["exports"],
+    "packages/afds/src/bricks/form/calendar/calendar.tsx": ["duplicates", "exports", "types"],
+    "packages/afds/src/bricks/form/calendar/range-calendar.tsx": ["duplicates", "exports", "types"],
+    "packages/afds/src/bricks/form/check-box-group/check-box-group.style.ts": ["files"],
+    "packages/afds/src/bricks/layout/center/center.style.ts": ["files"],
+    "packages/afds/src/bricks/layout/container/container.style.ts": ["files"],
+    "packages/afds/src/bricks/layout/stack/stack.style.ts": ["files"],
+    "packages/afds/src/bricks/navigation/pagination/pagination.tsx": ["exports", "types"],
+    "packages/afds/src/bricks/overlay/drawer/drawer.tsx": ["types"],
+    "packages/afds/src/bricks/overlay/modal/modal.tsx": ["exports", "types"],
+    "packages/afds/src/lib/__test__/story-determinism.analyzer.ts": ["types"],
+    "packages/afds/src/lib/__test__/wrapping-contract.analyzer.ts": ["types"],
+    "packages/afds/src/postcss/scope-afds-preflight.ts": ["duplicates"],
+    "packages/afds/tokens/stories/design-tokens.shared.tsx": ["exports"],
+    "packages/figma-token-bridge/src/resolvers/alias.ts": ["files"],
+    "packages/figma-token-bridge/src/schema/dtcg.schema.ts": ["exports"],
+    "packages/afds-registry/src/compositions/base-table/table.tsx": ["types"],
+    "packages/afds-registry/src/compositions/complex-filter/field-menu.tsx": ["exports"],
+    "packages/afds-registry/src/compositions/complex-filter/labels.ts": ["exports"],
+    "packages/afds-registry/src/compositions/complex-filter/option-picker.tsx": ["exports"],
+    "packages/afds-registry/src/compositions/date-picker-dropdown/date-picker-dropdown.tsx": [
+      "duplicates",
+      "exports"
+    ],
+    "packages/afds-registry/src/compositions/date-picker/date-picker.tsx": ["duplicates"],
+    "packages/afds-registry/src/compositions/range-date-picker/range-date-picker.tsx": [
+      "duplicates",
+      "exports"
+    ],
+    "packages/afds-registry/src/lib/__test__/story-determinism.analyzer.ts": ["types"],
+    "packages/afds-registry/src/lib/__test__/wrapping-contract.analyzer.ts": ["types"],
+    "packages/afds-registry/src/lib/build-registry.ts": ["exports", "types"],
+    "packages/afds-registry/src/lib/build-shadcn-registry.ts": ["types"],
+    "packages/afds-registry/src/types/index.ts": ["types"]
+  }
+}

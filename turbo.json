@@ -9,7 +9,10 @@
       "dependsOn": ["^build", "check-types"],
       "outputs": ["storybook-static/**"]
     },
-    "check-types": {},
+    "check-types": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {},
     "test": {
       "outputs": ["coverage/**"],
       "dependsOn": ["build"]
@@ -19,6 +22,10 @@
       "persistent": true
     },
     "storybook": {
+      "cache": false,
+      "persistent": true
+    },
+    "storybook-built": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["build"]

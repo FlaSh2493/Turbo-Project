@@ -1,6 +1,0 @@
-# Run lint-staged
-pnpm lint-staged
-
-# Run type check
-pnpm check-types
-

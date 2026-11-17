@@ -1,0 +1,75 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="AFDS / Headless / Calendar" />
+
+# Calendar 헤드리스
+
+**외부 — 직접 조합용**
+
+`Calendar` 컴포넌트 없이 캘린더 훅을 직접 호출해 셀 단위로 그리드를 조립한다.
+스타일·레이아웃은 전부 소비자 책임이며, 훅은 접근성/날짜 계산/선택 상태만 제공한다.
+
+**Import:**
+
+```tsx
+import {
+  useCalendar,
+  useCalendarMonth,
+  useCalendarCell,
+  getCalendarTitle,
+  useRangeCalendar,
+  useRangeCalendarMonth,
+  useRangeCalendarCell,
+  getRangeCalendarTitle,
+} from '@turbo-project/afds/headless'
+```
+
+## 기본 사용법
+
+```tsx
+const cal = useCalendar({ value: date, onValueChange: setDate, locale: 'ko-KR' })
+const { weekDays, gridProps, weeks } = useCalendarMonth(cal.state, cal.locale)
+// 각 날짜 셀: useCalendarCell(cal.state, date) → { buttonProps, ref, cellState }
+```
+
+## API
+
+### useCalendar(options)
+
+| 옵션            | 타입                                | 설명                   |
+| --------------- | ----------------------------------- | ---------------------- |
+| `value`         | `Date \| undefined`                 | 선택된 날짜            |
+| `onValueChange` | `(date: Date \| undefined) => void` | 날짜 변경 콜백         |
+| `locale`        | `string`                            | 로케일 (예: `'ko-KR'`) |
+
+반환: `{ state, locale }`
+
+### useCalendarCell(state, date)
+
+반환: `{ buttonProps, ref, cellState, dataAttrs }`
+
+| cellState 필드   | 설명               |
+| ---------------- | ------------------ |
+| `isSelected`     | 선택된 날짜        |
+| `isToday`        | 오늘               |
+| `isDisabled`     | 비활성             |
+| `isOutsideMonth` | 현재 월 외부       |
+| `formattedDate`  | 포맷된 날짜 문자열 |
+
+### getCalendarTitle(state, locale)
+
+"2026년 6월" 형식의 제목 문자열 반환
+
+---
+
+### useRangeCalendar / useRangeCalendarCell
+
+단일 캘린더와 동일한 구조. `useRangeCalendarCell`은 추가로 `rangePos`를 반환한다.
+
+| rangePos   | 설명                  |
+| ---------- | --------------------- |
+| `'start'`  | 범위 시작일           |
+| `'middle'` | 범위 중간             |
+| `'end'`    | 범위 종료일           |
+| `'single'` | 시작=종료 (하루 선택) |
+| `null`     | 범위 외부             |

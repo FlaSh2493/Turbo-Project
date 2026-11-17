@@ -1,0 +1,8 @@
+{
+  "name": "Figma Variables Exporter",
+  "id": "figma-variables-exporter",
+  "api": "1.0.0",
+  "main": "dist/plugin/main.js",
+  "ui": "dist/ui/index.html",
+  "editorType": ["figma"]
+}

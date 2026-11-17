@@ -1,0 +1,12 @@
+{
+  "extends": ["@turbo-project/tsconfig/tsconfig.base.json"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  },
+  "include": ["src", "cli", "tests"],
+  "exclude": ["node_modules", "dist", ".turbo"]
+}

@@ -1,0 +1,43 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="AFDS / Headless / Modal" />
+
+# modal (헤드리스)
+
+**외부 — 컴포넌트+헤드리스 조합 필수**
+
+모달은 **렌더러 컴포넌트 `<ModalContainer />`** 와 **명령형 헤드리스 `modal.open()`** 를 함께 써야 동작한다.
+앱 어딘가에 `<ModalContainer />`를 한 번 마운트하고, 어디서나 `modal.open(render)`로 모달을 연다.
+(`useModalStore`는 ModalContainer의 내부 엔진이라 소비자가 직접 쓰지 않는다.)
+
+**Import:**
+
+```tsx
+import { ModalContainer, Modal } from '@turbo-project/afds/bricks'
+import { modal } from '@turbo-project/afds/headless'
+```
+
+## 기본 사용법
+
+```tsx
+// 1. 렌더러를 한 번 마운트 (보통 앱 루트)
+<ModalContainer />
+
+// 2. 어디서나 modal.open으로 연다 — render는 { isOpen, close }를 받는다
+modal.open(({ isOpen, close }) => (
+  <Modal.Root open={isOpen} onOpenChange={o => !o && close()}>
+    <Modal.Portal>
+      <Modal.Overlay />
+      <Modal.Content>…</Modal.Content>
+    </Modal.Portal>
+  </Modal.Root>
+))
+```
+
+## API
+
+| 함수                 | 타입                                                             | 설명                                            |
+| -------------------- | ---------------------------------------------------------------- | ----------------------------------------------- |
+| `modal.open(render)` | `(render: (props: ModalRenderProps) => ReactNode) => () => void` | 모달 추가, 해당 모달을 닫는 `close` 함수를 반환 |
+
+- `render`는 `{ isOpen, close }` (`ModalRenderProps`)를 인자로 받는다
