@@ -25,17 +25,11 @@
     "version-packages": "changeset version",
     "release": "pnpm --filter @turbo-project/afds build && changeset publish",
     "doctor": "npx react-doctor@latest",
-    "knip": "knip --treat-config-hints-as-errors",
-    "agents:init": "agent-rules init",
-    "agents:check": "agent-rules check",
-    "test:mutation": "mutation run"
+    "knip": "knip --treat-config-hints-as-errors"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@turbo-project/agent-rules": "workspace:*",
     "@turbo-project/eslint-config": "workspace:*",
-    "@turbo-project/governance": "workspace:*",
-    "@turbo-project/mutation": "workspace:*",
     "@turbo-project/prettier-config": "workspace:*",
     "@turbo-project/tsconfig": "workspace:*",
     "eslint": "^9.39.2",

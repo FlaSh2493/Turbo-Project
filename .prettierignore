@@ -45,10 +45,6 @@ packages/afds/tokens/tokens.effects.css
 # 「안전하지 않다」가 아니라 「확인할 수 없다」가 제외 사유다.
 packages/figma-variables-exporter/src/ui/index.html
 
-# @turbo-project/agent-rules
-AGENTS.md
-.agents/rules/common/
-
 # 공통 패키지(agent-rules·governance·mutation)는 원본 형식을 그대로 둔다 — 다른 레포에 배포되는 소스라 이 레포 prettier 로 고치지 않는다.
 packages/agent-rules/
 packages/governance/

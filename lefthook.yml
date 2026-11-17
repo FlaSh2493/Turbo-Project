@@ -48,7 +48,7 @@ pre-commit:
       run: pnpm exec prettier --ignore-unknown --write {staged_files}
       stage_fixed: true
 
-# 6단계와 등급 판정(governance judge, 막지 않음)은 .lefthook/pre-push/pre-push.sh 한 스크립트다 — `run:` 잡은 push 할 파일이 없으면 lefthook 이
+# 6단계는 .lefthook/pre-push/pre-push.sh 한 스크립트다 — `run:` 잡은 push 할 파일이 없으면 lefthook 이
 # 통째로 건너뛰어(「no matching push files」) 가드가 안 돈다. `script:` 는 건너뛰지 않는다.
 # use_stdin 이 없으면 block-main-push.sh 가 빈 입력을 받아 main 대상 push 도 조용히 통과한다.
 pre-push:

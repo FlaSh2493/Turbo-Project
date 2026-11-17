@@ -5,7 +5,6 @@
       "entry": ["doctor.config.ts"],
       "ignoreBinaries": ["oxlint"],
       "ignoreDependencies": [
-        "@turbo-project/governance",
         "@turbo-project/prettier-config",
         "@types/glob",
         "@types/yargs",
