@@ -1,6 +1,7 @@
 {
   "name": "@turbo-project/mutation",
   "version": "0.0.0",
+  "private": true,
   "description": "팀 레포 공통 뮤테이션 테스트. Stryker와 공통 설정, 실행 명령을 준다",
   "type": "module",
   "bin": {

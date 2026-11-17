@@ -5,7 +5,7 @@ paths:
 
 # 버전 등급 규칙
 
-배포되는 패키지는 **`@turbo-project/afds`** 와 공통 패키지 **`@turbo-project/agent-rules`·`governance`·`mutation`** 이다. 공통 패키지는 다른 레포가 설치해 `init` 으로 쓰므로 블록·공통 규칙을 바꾸는 변경이 곧 소비처의 계약 변경이다. `packages/afds-registry` 는 `private: true` 라 npm 에 나가지 않고, 컴포지션은 `registry.json` 으로 배포된다.
+배포되는 패키지는 **`@turbo-project/afds`** 하나다. `packages/afds-registry` 는 `private: true` 라 npm 에 나가지 않고, 컴포지션은 `registry.json` 으로 배포된다. 공통 패키지 `agent-rules`·`governance`·`mutation` 도 아직 배포하지 않는다(`private: true`) — 배포를 정하면 그 줄을 빼고 등급 있는 changeset 을 붙인다.
 
 **머지하면 즉시 자동 배포된다** — `release.yml` 이 `main` push 로 돌아 범프·publish 를 한다. 사람이 개입하는 지점이 없고 등급을 검사하는 기계도 없다.
 
