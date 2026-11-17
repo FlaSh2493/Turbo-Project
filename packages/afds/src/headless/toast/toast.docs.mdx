@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="AFDS / Headless / Toast" />
+
+# Toast 헤드리스
+
+**외부 — 직접 조합용**
+
+`Toaster` 컴포넌트 없이 토스트 store를 직접 구독해 커스텀 토스트 리스트를 렌더한다.
+React 안에서는 `useToast` 훅이 구독을 감싸주고, store에 직접 접근할 때는 `toast`/`defaultStore`를 쓴다.
+
+**Import:**
+
+```tsx
+import { useToast, toast, defaultStore } from '@turbo-project/afds/headless'
+```
+
+## 기본 사용법
+
+```tsx
+const { toasts, dismiss } = useToast()
+toast.add({ content: '저장되었습니다.', duration: 3000 })
+```
+
+## API
+
+### useToast()
+
+| 반환값       | 타입                              | 설명                  |
+| ------------ | --------------------------------- | --------------------- |
+| `toasts`     | `ToastData[]`                     | 현재 토스트 목록      |
+| `addToasts`  | `(options: ToastOptions) => void` | 토스트 추가           |
+| `dismiss`    | `(id: string) => void`            | 특정 토스트 닫기      |
+| `dismissAll` | `() => void`                      | 모든 토스트 닫기      |
+| `remove`     | `(id: string) => void`            | 특정 토스트 즉시 제거 |
+| `removeAll`  | `() => void`                      | 모든 토스트 즉시 제거 |
+
+### toast (전역 단축 API)
+
+| 함수                 | 설명             |
+| -------------------- | ---------------- |
+| `toast.add(options)` | 토스트 추가      |
+| `toast.dismiss(id)`  | 특정 토스트 닫기 |
+
+### defaultStore (저수준)
+
+| 함수                               | 설명             |
+| ---------------------------------- | ---------------- |
+| `defaultStore.subscribe(listener)` | store 구독       |
+| `defaultStore.getSnapshot()`       | 현재 상태 스냅샷 |
+| `defaultStore.add(options)`        | 토스트 추가      |
+| `defaultStore.dismiss(id)`         | 토스트 닫기      |

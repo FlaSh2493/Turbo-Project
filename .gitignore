@@ -1,8 +1,11 @@
+.DS_Store
 node_modules
 dist
 storybook-static
 .turbo
 .next
+.playwright-mcp
+.env.secret
 .env
 .env.local
 .env.development.local
@@ -14,3 +17,5 @@ storybook-static
 
 tsconfig.tsbuildinfo
 coverage
+.omc
+**/.claude/settings.local.json

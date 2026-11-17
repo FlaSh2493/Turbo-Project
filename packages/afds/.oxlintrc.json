@@ -1,0 +1,107 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript"],
+  "categories": { "correctness": "off" },
+  "ignorePatterns": ["dist/**", "node_modules/**", "coverage/**", "tokens/*.css", "docs/**/*.md"],
+  "overrides": [
+    {
+      "files": ["**/*.{js,mjs,cjs,jsx}"],
+      "jsPlugins": ["eslint-plugin-unused-imports"],
+      "rules": {
+        "no-unused-vars": "off",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.{ts,mts,cts,tsx}"],
+      "jsPlugins": ["eslint-plugin-unused-imports"],
+      "rules": {
+        "no-var": "error",
+        "prefer-const": "error",
+        "prefer-rest-params": "error",
+        "prefer-spread": "error",
+        "no-array-constructor": "error",
+        "no-unused-expressions": "error",
+        "no-unused-vars": "off",
+        "typescript/ban-ts-comment": "error",
+        "typescript/no-duplicate-enum-values": "error",
+        "typescript/no-empty-object-type": "error",
+        "typescript/no-explicit-any": "warn",
+        "typescript/no-extra-non-null-assertion": "error",
+        "typescript/no-misused-new": "error",
+        "typescript/no-namespace": "error",
+        "typescript/no-non-null-asserted-optional-chain": "error",
+        "typescript/no-require-imports": "error",
+        "typescript/no-this-alias": "error",
+        "typescript/no-unnecessary-type-constraint": "error",
+        "typescript/no-unsafe-declaration-merging": "error",
+        "typescript/no-unsafe-function-type": "error",
+        "typescript/no-wrapper-object-types": "error",
+        "typescript/prefer-as-const": "error",
+        "typescript/prefer-namespace-keyword": "error",
+        "typescript/triple-slash-reference": "error",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/headless/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@turbo-project/afds",
+                  "@turbo-project/afds/bricks",
+                  "@turbo-project/afds/compositions",
+                  "**/bricks/**",
+                  "**/compositions/**"
+                ],
+                "message": "[AFDS] 레이어 위반: headless는 bricks/compositions를 import할 수 없습니다 (루트 entry `@turbo-project/afds` 경유도 금지 — 의존 방향: headless ← bricks ← compositions)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/bricks/**/*.{ts,tsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@turbo-project/afds/compositions", "**/compositions/**"],
+                "message": "[AFDS] 레이어 위반: bricks는 compositions를 import할 수 없습니다 (의존 방향: bricks ← compositions)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.stories.{ts,tsx}", "**/*.test.{ts,tsx}", "src/**/__test__/**"],
+      "rules": { "no-restricted-imports": "off" }
+    }
+  ]
+}

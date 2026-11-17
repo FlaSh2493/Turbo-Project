@@ -3,7 +3,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "es2022",
-    "downlevelIteration": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "ESNext",
     "allowJs": true,

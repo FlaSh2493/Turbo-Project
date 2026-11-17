@@ -1,0 +1,92 @@
+# afds-registry 패키지 테스트 · 타입체크 · 빌드 · 레지스트리 정합 검증
+#
+# 이 워크플로는 **직접 pull_request 로 트리거되지 않는다.** ci.yml 이 workflow_call 로
+# 호출한다. 이유는 afds-test.yml 의 머리 주석과 같다 — paths 필터를 가진 워크플로는
+# 필수 체크로 지정할 수 없고(경로 미해당 PR 에서 "expected but not reported" 로 막힌다),
+# 경로 관련성 판정을 ci.yml 의 `changes` job 한 곳으로 모아야 두 판정이 어긋날 수 없다.
+#
+# **`packages/afds/*` 변경도 이 워크플로를 켠다**(ci-detect-changes.sh). afds-registry 는 afds 에
+# 의존하므로 afds 만 바꾼 PR 에서도 이 잡의 모든 검사가 돌아야 한다. afds-registry 의 vitest 는
+# **여기서만** 돈다 — afds-test.yml 은 afds·figma-token-bridge 만 실행한다.
+#
+# 단독 실행이 필요하면 Actions 탭에서 workflow_dispatch 로 돌린다.
+name: AFDS Registry Test & Type Check
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  afds-registry-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 컴포지션이 afds-registry 로 이전되며(upstream PR #143) 이 패키지 소스가 실제로
+      # `@turbo-project/afds/bricks` 등을 **패키지 specifier 로** import 한다(예전엔 이 잡에서
+      # afds 를 import 하는 실제 소스가 없어 빌드 없이도 타입체크가 통과했다). afds 의
+      # `exports` 는 `types` 조건이 `dist/*.d.ts` 를 가리키므로, 빌드 없이는 매 서브패스가
+      # TS2307 이다 — 이 잡은 afds-test.yml 과 별개 러너라 그쪽의 빌드 산출물을 못 본다.
+      - name: Build afds (afds-registry 타입체크가 의존하는 dist/*.d.ts 생성)
+        run: bash .github/scripts/pnpm-run.sh packages/afds build
+
+      # compositions ↔ 레지스트리 정합 검증:
+      # 레지스트리를 재생성했을 때 커밋된 산출물과 diff가 나면 (compositions 추가/삭제 후 미재생성) 실패.
+      #
+      # 산출물은 루트 `registry.json` **하나**다. 자체 CLI 가 읽던
+      # `src/registry/index.json` 은 CLI 철거와 함께 사라졌다.
+      - name: Registry ↔ compositions 정합 검증
+        run: |
+          bash .github/scripts/pnpm-run.sh packages/afds-registry generate:registry
+          git diff --exit-code registry.json \
+            || { echo "::error::registry.json 이 compositions와 불일치합니다. 'pnpm --filter @turbo-project/afds-registry generate:registry' 실행 후 커밋하세요."; exit 1; }
+
+      # 규격 준수 검사. 위 정합 검증과 **잡는 것이 다르다** — 돌연변이로 확인했다:
+      #  · 산출물만 낡음(description 변조)      → 정합 O / validate X
+      #  · 생성기가 규격 밖 type 을 내보냄       → 정합 X / validate O
+      # 정합 검증은 우리 생성기의 출력과 비교하므로 **생성기 자신이 틀리면 함께 틀린다.**
+      # 그 구멍을 이 스텝이 막는다.
+      - name: 레지스트리 규격 검사 (shadcn registry validate)
+        run: bash .github/scripts/pnpm-run.sh packages/afds-registry validate:registry
+
+      - name: Type check
+        run: bash .github/scripts/pnpm-run.sh packages/afds-registry check-types
+
+      # afds-test.yml 에는 있고 여기에는 없었다. 그래서 afds-registry 는 패키지 단위 lint 가
+      # CI 에서 한 번도 돌지 않았다 — 스크립트를 추가한 것과 CI 가 그것을 부르는 것은 다르다.
+      # afds-registry 의 lint 는 `--max-warnings 0` 이므로 경고 1건도 실패로 잡힌다(afds 는 139건이
+      # 남아 있어 아직 그럴 수 없다).
+      #
+      # 존재 단정을 먼저 하는 이유(실측): `pnpm --filter <pkg> <없는 스크립트>` 는 아무것도 하지
+      # 않고 **exit 0** 이다. 그래서 raw 호출만 두면 lint 스크립트가 지워지거나 이름이 바뀐 순간
+      # 이 스텝은 실패가 아니라 조용한 초록이 된다 — #125 가 고치려던 결함이 그것이다.
+      #
+      # #125 는 이 자리에 인라인 `node -e` 단정을 넣었고, 그때는 공통 헬퍼가 아직 없었다.
+      # 지금은 있으므로 **헬퍼로 흡수한다.** 같은 것을 지키는 방식이 둘이면 둘 다 약해진다 —
+      # 한쪽만 갱신되면 다른 쪽이 조용히 뒤처지고, 어느 쪽이 정본인지도 사라진다.
+      # (`#124` 가 afds-test.yml 에 넣은 같은 모양의 인라인 가드도 `#122` 가 헬퍼로 흡수했다.)
+      #
+      # 헬퍼는 인라인 판이 잡던 것을 전부 잡고 하나를 더 잡는다: 필터 문자열을 손으로 적지 않고
+      # `package.json` 의 `name` 에서 읽으므로 **패키지 이름이 바뀌어도** 무동작 초록이 되지
+      # 않는다. 인라인 판은 `scripts.lint` 만 봐서 그 경우를 통과시켰다.
+      - name: Lint
+        run: bash .github/scripts/pnpm-run.sh packages/afds-registry lint
+
+      - name: Run tests
+        run: bash .github/scripts/pnpm-run.sh packages/afds-registry test

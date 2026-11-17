@@ -1,0 +1,22 @@
+{
+  "afdsBricks": {
+    "action/segment-control/segment-control.tsx::eslint-disable": 1,
+    "animation/fade-in/fade-in.tsx::eslint-disable": 1,
+    "animation/fade-swap/fade-swap.tsx::eslint-disable": 1,
+    "display/scroll-indicator/scroll-indicator.tsx::eslint-disable": 1,
+    "feedback/progress/progress.tsx::eslint-disable": 1,
+    "layout/grid/grid.tsx::eslint-disable": 1,
+    "layout/scroll-area/scroll-area.tsx::as-unknown-as": 3,
+    "layout/scroll-area/scroll-area.tsx::eslint-disable": 4,
+    "overlay/tooltip/tooltip.tsx::as-unknown-as": 1
+  },
+  "afdsRegistryCompositions": {
+    "base-multi-select/base-multi-select.tsx::eslint-disable": 1,
+    "base-select/base-select.tsx::eslint-disable": 1,
+    "base-table/table.tsx::as-unknown-as": 3,
+    "base-table/table.tsx::eslint-disable": 4,
+    "complex-filter/labels.ts::as-unknown-as": 1,
+    "complex-filter/use-filter-controller.ts::as-unknown-as": 1,
+    "lnb/lnb.style.ts::as-unknown-as": 1
+  }
+}

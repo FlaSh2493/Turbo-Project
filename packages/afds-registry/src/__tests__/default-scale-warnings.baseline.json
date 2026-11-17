@@ -1,0 +1,43 @@
+{
+  "afdsBricks": {
+    "action/button/button.style.ts": 1,
+    "action/floating-action-bar/floating-action-bar.style.ts": 3,
+    "action/segment-control/segment-control.style.ts": 9,
+    "display/round-badge/round-badge.style.ts": 2,
+    "display/square-badge/square-badge.style.ts": 1,
+    "display/table/table.style.ts": 2,
+    "feedback/toast/toast.style.ts": 6,
+    "feedback/toast/toast.tsx": 3,
+    "form/check-box/check-box.style.ts": 1,
+    "form/input/input.style.ts": 4,
+    "form/multi-select/multi-select.tsx": 6,
+    "form/radio-group/radio-group.style.ts": 1,
+    "form/select/select.style.ts": 5,
+    "form/select/select.tsx": 4,
+    "layout/container/container.style.ts": 3,
+    "layout/container/container.tsx": 3,
+    "navigation/pagination/pagination.style.ts": 2,
+    "navigation/tab/tab.style.ts": 3,
+    "overlay/modal/modal.tsx": 6,
+    "overlay/popover/popover.style.ts": 1,
+    "overlay/tooltip/tooltip.style.ts": 5
+  },
+  "afdsRegistryCompositions": {
+    "base-multi-select/base-multi-select.tsx": 1,
+    "base-radio-group/base-radio-group.tsx": 1,
+    "base-table/table.style.ts": 2,
+    "base-table/table.tsx": 5,
+    "base-tooltip/base-tooltip.tsx": 1,
+    "check-box-card/check-box-card.tsx": 1,
+    "date-picker-dropdown/date-picker-dropdown.tsx": 2,
+    "date-picker/date-picker.tsx": 1,
+    "ghost-select/ghost-select.tsx": 1,
+    "page-layout/page-layout.tsx": 4,
+    "period-filter/period-filter.style.ts": 1,
+    "period-filter/period-filter.tsx": 8,
+    "popconfirm/popconfirm.style.ts": 3,
+    "radio-card/radio-card.style.ts": 2,
+    "range-filter/range-filter.tsx": 6,
+    "section-error-fallback/section-error-fallback.tsx": 1
+  }
+}

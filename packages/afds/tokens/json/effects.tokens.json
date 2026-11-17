@@ -1,0 +1,15 @@
+{
+  "gradient": {
+    "ai": {
+      "type": "gradient",
+      "value": {
+        "modes": ["text", "bg", "border"],
+        "angle": "96deg",
+        "stops": [
+          { "color": "{color.brand.500}", "position": "0%" },
+          { "color": "{color.extra.ui.purple}", "position": "100%" }
+        ]
+      }
+    }
+  }
+}

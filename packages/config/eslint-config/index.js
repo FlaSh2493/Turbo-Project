@@ -1,1 +1,1 @@
-export { jsLintConfig, tsLintConfig } from './eslint.config.js'
+export { tsLintConfig } from './eslint.config.js'

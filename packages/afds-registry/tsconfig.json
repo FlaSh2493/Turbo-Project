@@ -1,0 +1,26 @@
+{
+  "extends": ["@turbo-project/tsconfig/tsconfig.base.json"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["node"],
+    "ignoreDeprecations": "5.0",
+
+    // 컴포지션 소스는 **소비처로 복사**되므로 소비처의 컴파일러 설정에서 통과해야 한다.
+    // Vite 의 `react-ts` 템플릿은 `verbatimModuleSyntax: true` 가 **기본값**이고, 그 설정에서는
+    // 타입을 값 import 로 섞으면 `TS1484` 로 컴파일이 깨진다. 우리 쪽 기본값(`isolatedModules`)
+    // 은 그것을 요구하지 않으므로 **여기서 켜지 않으면 깨진 소스를 배포한다** — 실제로 그렇게
+    // 나갔다: `base-input.tsx` 가 `InputHTMLAttributes`·`ReactNode` 를 값으로 import 해
+    // stock Vite React-TS 소비자에서 오류 2건을 냈다.
+    //
+    // 도입 시점의 기존 위반을 모두 고치고 켰으므로 래칫이 없다.
+    // afds 는 대상이 아니다 — 패키지로 배포되어 소비처가 `.d.ts` 를 쓰고 소스를 컴파일하지
+    // 않으므로 성질이 다르다. 근거와 잔여 위반은 #182.
+    "verbatimModuleSyntax": true
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist", ".turbo"]
+}

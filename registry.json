@@ -1,0 +1,1222 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "afds-registry",
+  "homepage": "https://github.com/FlaSh2493/turbo-project",
+  "items": [
+    {
+      "name": "alert-modal",
+      "type": "registry:ui",
+      "title": "AlertModal",
+      "description": "단일 확인 버튼만 가진 간단한 알림 모달.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds"],
+      "categories": ["common", "overlay"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/alert-modal/alert-modal.spec.md",
+          "type": "registry:file",
+          "target": "@ui/alert-modal/alert-modal.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/alert-modal/alert-modal.tsx",
+          "type": "registry:ui",
+          "target": "@ui/alert-modal/alert-modal.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/alert-modal/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/alert-modal/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "AlertModal",
+        "dirName": "alert-modal",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["alert-modal.spec.md"]
+      }
+    },
+    {
+      "name": "base-check-box",
+      "type": "registry:ui",
+      "title": "BaseCheckBox",
+      "description": "단독 또는 그룹으로 사용하는 체크박스 컴포넌트.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@base-ui/react@^1.4.1", "@turbo-project/afds"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-check-box/base-check-box-group.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-check-box/base-check-box-group.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-check-box/base-check-box-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-check-box/base-check-box-group.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-check-box/base-check-box.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-check-box/base-check-box.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-check-box/base-check-box.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-check-box/base-check-box.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-check-box/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-check-box/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseCheckBox",
+        "dirName": "base-check-box",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-check-box-group.spec.md", "base-check-box.spec.md"]
+      }
+    },
+    {
+      "name": "base-input",
+      "type": "registry:ui",
+      "title": "BaseInput",
+      "description": "텍스트 입력을 받는 폼 인풋 컴포넌트.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/base-input.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-input/base-input.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/base-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-input/base-input.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-input/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseInput",
+        "dirName": "base-input",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-input.spec.md"]
+      }
+    },
+    {
+      "name": "base-multi-select",
+      "type": "registry:ui",
+      "title": "BaseMultiSelect",
+      "description": "`MultiSelect`를 감싼 간편 래퍼. 옵션 배열만 전달하면 즉시 사용 가능하다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-multi-select/base-multi-select.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-multi-select/base-multi-select.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-multi-select/base-multi-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-multi-select/base-multi-select.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-multi-select/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-multi-select/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-tooltip/base-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/base-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/is-text-clamped.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/is-text-clamped.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/use-overflow-detect.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/use-overflow-detect.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseMultiSelect",
+        "dirName": "base-multi-select",
+        "compositionDeps": ["overflow-tooltip"],
+        "bundledCompositions": ["base-tooltip", "overflow-tooltip"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-multi-select.spec.md"]
+      }
+    },
+    {
+      "name": "base-radio-group",
+      "type": "registry:ui",
+      "title": "BaseRadioGroup",
+      "description": "단일 선택을 위한 라디오 버튼 그룹 컴포넌트.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@base-ui/react@^1.4.1", "@turbo-project/afds"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-radio-group/base-radio-group.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-radio-group/base-radio-group.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-radio-group/base-radio-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-radio-group/base-radio-group.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-radio-group/base-radio.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-radio-group/base-radio.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-radio-group/base-radio.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-radio-group/base-radio.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-radio-group/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-radio-group/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseRadioGroup",
+        "dirName": "base-radio-group",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-radio-group.spec.md", "base-radio.spec.md"]
+      }
+    },
+    {
+      "name": "base-select",
+      "type": "registry:ui",
+      "title": "BaseSelect",
+      "description": "단일 선택 + 옵션 배열 props만 받는 표준 Select 합성.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-select/base-select.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-select/base-select.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-select/base-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-select/base-select.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-select/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-select/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-tooltip/base-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/base-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/is-text-clamped.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/is-text-clamped.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/use-overflow-detect.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/use-overflow-detect.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseSelect",
+        "dirName": "base-select",
+        "compositionDeps": ["overflow-tooltip"],
+        "bundledCompositions": ["base-tooltip", "overflow-tooltip"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-select.spec.md"]
+      }
+    },
+    {
+      "name": "base-table",
+      "type": "registry:ui",
+      "title": "BaseTable",
+      "description": "TanStack Table 기반의 고성능 데이터 테이블 컴포넌트.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": [
+        "@tanstack/react-table@^8.21.3",
+        "@turbo-project/afds",
+        "lucide-react@^0.575.0"
+      ],
+      "categories": ["common", "display"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/hooks/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/hooks/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/hooks/use-table-scroll-state.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/hooks/use-table-scroll-state.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/hooks/use-table.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/hooks/use-table.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table-empty-state.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-table/table-empty-state.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table-utils.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/table-utils.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table.context.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/table.context.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-table/table.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/table.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/table.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-table/table.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-table/types.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-table/types.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseTable",
+        "dirName": "base-table",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["table.spec.md"]
+      }
+    },
+    {
+      "name": "base-tooltip",
+      "type": "registry:ui",
+      "title": "BaseTooltip",
+      "description": "트리거 hover·focus(또는 click) 시 추가 정보를 표시하는 컴포지션 툴팁.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "overlay"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-tooltip/base-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/base-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "BaseTooltip",
+        "dirName": "base-tooltip",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["base-tooltip.spec.md"]
+      }
+    },
+    {
+      "name": "check-box-card",
+      "type": "registry:ui",
+      "title": "CheckBoxCard",
+      "description": "테두리 카드형(선택 리스트 UI)으로 표시되는 체크박스 컴포지션. 네이티브 체크박스를 숨기고 카드 전체를 선택 영역으로 사용한다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": [
+        "@base-ui/react@^1.4.1",
+        "@turbo-project/afds",
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^0.575.0"
+      ],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/check-box-card/check-box-card.spec.md",
+          "type": "registry:file",
+          "target": "@ui/check-box-card/check-box-card.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/check-box-card/check-box-card.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/check-box-card/check-box-card.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/check-box-card/check-box-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/check-box-card/check-box-card.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/check-box-card/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/check-box-card/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "CheckBoxCard",
+        "dirName": "check-box-card",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["check-box-card.spec.md"]
+      }
+    },
+    {
+      "name": "complex-filter",
+      "type": "registry:ui",
+      "title": "ComplexFilter",
+      "description": "입력 하나와 칩으로 이뤄진 검색 필터 바. 입력하면 키워드 추천이, 빈 입력을 누르면 필드 메뉴가 열리고 고른 결과가 칩으로 쌓인다. `ComplexFilter.Root` 아래 파트를 조립해 쓴다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/actions.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/actions.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/chip-text.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/chip-text.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/chip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/chips.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/chips.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/complex-filter.context.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/complex-filter.context.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/complex-filter.spec.md",
+          "type": "registry:file",
+          "target": "@ui/complex-filter/complex-filter.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/complex-filter.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/complex-filter.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/editor-footer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/editor-footer.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/field-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/field-menu.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/hover-scroll.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/hover-scroll.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/input.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/keyboard.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/keyboard.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/keyword-edit-form.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/keyword-edit-form.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/labels.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/labels.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/listbox.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/listbox.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/match-mode.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/match-mode.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/menu-rows.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/menu-rows.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/option-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/option-picker.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/popup.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/popup.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/reducer.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/reducer.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/suggest-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/suggest-list.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/types.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/types.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/use-chip-actions.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/use-chip-actions.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/use-filter-controller.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/use-filter-controller.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/complex-filter/use-input-keys.ts",
+          "type": "registry:ui",
+          "target": "@ui/complex-filter/use-input-keys.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "ComplexFilter",
+        "dirName": "complex-filter",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["complex-filter.spec.md"]
+      }
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "DatePicker",
+      "description": "`Calendar`를 표준 패널 스타일(테두리·라운드·그림자·패딩)로 감싼 합성. 페이지·폼 영역에 항상 펼쳐진 상태로 노출한다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@internationalized/date@^3.12.1", "@turbo-project/afds"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/date-picker.spec.md",
+          "type": "registry:file",
+          "target": "@ui/date-picker/date-picker.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/date-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-picker/date-picker.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/date-picker/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "DatePicker",
+        "dirName": "date-picker",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["date-picker.spec.md"]
+      }
+    },
+    {
+      "name": "date-picker-dropdown",
+      "type": "registry:ui",
+      "title": "DatePickerDropdown",
+      "description": "캘린더 아이콘 트리거 + Popover로 펼쳐지는 단일 날짜 선택기. 선택 시 자동으로 닫히고 `ko-KR`(`YYYY. MM. DD`) 포맷으로 표시된다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": [
+        "@internationalized/date@^3.12.1",
+        "@turbo-project/afds",
+        "clsx@^2.1.1",
+        "lucide-react@^0.575.0"
+      ],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker-dropdown/date-picker-dropdown.spec.md",
+          "type": "registry:file",
+          "target": "@ui/date-picker-dropdown/date-picker-dropdown.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker-dropdown/date-picker-dropdown.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-picker-dropdown/date-picker-dropdown.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker-dropdown/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/date-picker-dropdown/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/date-picker.spec.md",
+          "type": "registry:file",
+          "target": "@ui/date-picker/date-picker.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/date-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-picker/date-picker.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/date-picker/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/date-picker/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "DatePickerDropdown",
+        "dirName": "date-picker-dropdown",
+        "compositionDeps": ["date-picker"],
+        "bundledCompositions": ["date-picker"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["date-picker-dropdown.spec.md"]
+      }
+    },
+    {
+      "name": "floating-action-bar-count",
+      "type": "registry:ui",
+      "title": "FloatingActionBarCount",
+      "description": "`FloatingActionBar.Card` 내부에 배치하는 선택 개수 표시 컴포지션.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "display"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/floating-action-bar-count/floating-action-bar-count.spec.md",
+          "type": "registry:file",
+          "target": "@ui/floating-action-bar-count/floating-action-bar-count.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/floating-action-bar-count/floating-action-bar-count.tsx",
+          "type": "registry:ui",
+          "target": "@ui/floating-action-bar-count/floating-action-bar-count.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/floating-action-bar-count/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/floating-action-bar-count/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "FloatingActionBarCount",
+        "dirName": "floating-action-bar-count",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["floating-action-bar-count.spec.md"]
+      }
+    },
+    {
+      "name": "ghost-select",
+      "type": "registry:ui",
+      "title": "GhostSelect",
+      "description": "헤더·타이틀 영역에서 사용하는 보더 없는 고스트 스타일 Select.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/ghost-select/ghost-select.spec.md",
+          "type": "registry:file",
+          "target": "@ui/ghost-select/ghost-select.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/ghost-select/ghost-select.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ghost-select/ghost-select.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/ghost-select/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/ghost-select/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-tooltip/base-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/base-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/is-text-clamped.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/is-text-clamped.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/use-overflow-detect.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/use-overflow-detect.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "GhostSelect",
+        "dirName": "ghost-select",
+        "compositionDeps": ["base-tooltip", "overflow-tooltip"],
+        "bundledCompositions": ["base-tooltip", "overflow-tooltip"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["ghost-select.spec.md"]
+      }
+    },
+    {
+      "name": "lnb",
+      "type": "registry:ui",
+      "title": "Lnb",
+      "description": "접고 펼치는 LNB(60px ↔ 220px)와 오른쪽 콘텐츠 영역을 조립하는 Compound 레이아웃.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": [
+        "@turbo-project/afds",
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^0.575.0"
+      ],
+      "categories": ["common", "navigation"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/lnb/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/lnb/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/lnb/lnb.spec.md",
+          "type": "registry:file",
+          "target": "@ui/lnb/lnb.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/lnb/lnb.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/lnb/lnb.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/lnb/lnb.tsx",
+          "type": "registry:ui",
+          "target": "@ui/lnb/lnb.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "Lnb",
+        "dirName": "lnb",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["lnb.spec.md"]
+      }
+    },
+    {
+      "name": "negative-modal",
+      "type": "registry:ui",
+      "title": "NegativeModal",
+      "description": "위험·되돌릴 수 없는 액션을 위한 확인/취소 모달. 확인 버튼은 warning 톤으로 강조된다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds"],
+      "categories": ["common", "overlay"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/negative-modal/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/negative-modal/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/negative-modal/negative-modal.spec.md",
+          "type": "registry:file",
+          "target": "@ui/negative-modal/negative-modal.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/negative-modal/negative-modal.tsx",
+          "type": "registry:ui",
+          "target": "@ui/negative-modal/negative-modal.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "NegativeModal",
+        "dirName": "negative-modal",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["negative-modal.spec.md"]
+      }
+    },
+    {
+      "name": "overflow-tooltip",
+      "type": "registry:ui",
+      "title": "OverflowTooltip",
+      "description": "텍스트가 실제로 잘릴(ellipsis · line-clamp) 때만 자동으로 Tooltip을 띄우는 합성.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "overlay"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/is-text-clamped.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/is-text-clamped.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/overflow-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/overflow-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/overflow-tooltip/use-overflow-detect.ts",
+          "type": "registry:ui",
+          "target": "@ui/overflow-tooltip/use-overflow-detect.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-tooltip/base-tooltip.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/base-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/base-tooltip.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-tooltip/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-tooltip/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "OverflowTooltip",
+        "dirName": "overflow-tooltip",
+        "compositionDeps": ["base-tooltip"],
+        "bundledCompositions": ["base-tooltip"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["overflow-tooltip.spec.md"]
+      }
+    },
+    {
+      "name": "page-layout",
+      "type": "registry:ui",
+      "title": "PageLayout",
+      "description": "페이지 표준 헤더(타이틀/액션) + 12-컬럼 그리드 본문을 묶은 Compound 레이아웃.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds"],
+      "categories": ["common", "layout"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/page-layout/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/page-layout/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/page-layout/page-layout.spec.md",
+          "type": "registry:file",
+          "target": "@ui/page-layout/page-layout.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/page-layout/page-layout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/page-layout/page-layout.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "PageLayout",
+        "dirName": "page-layout",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["page-layout.spec.md"]
+      }
+    },
+    {
+      "name": "pagination-bar",
+      "type": "registry:ui",
+      "title": "PaginationBar",
+      "description": "Total 카운트(좌측) + Pagination(중앙)을 한 줄에 배치한 페이지 하단 바.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds"],
+      "categories": ["common", "navigation"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/pagination-bar/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/pagination-bar/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/pagination-bar/pagination-bar.spec.md",
+          "type": "registry:file",
+          "target": "@ui/pagination-bar/pagination-bar.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/pagination-bar/pagination-bar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/pagination-bar/pagination-bar.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "PaginationBar",
+        "dirName": "pagination-bar",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["pagination-bar.spec.md"]
+      }
+    },
+    {
+      "name": "period-filter",
+      "type": "registry:ui",
+      "title": "PeriodFilter",
+      "description": "Before / After / Range 모드와 사용자 정의 빠른 옵션을 묶은 기간 필터 패널. 자체 오버레이는 가지지 않으며 호출자가 `Popover.Content` 등에 배치한다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": [
+        "@base-ui/react@^1.4.1",
+        "@internationalized/date@^3.12.1",
+        "@turbo-project/afds",
+        "class-variance-authority@^0.7.1"
+      ],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/period-filter/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/period-filter/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/period-filter/period-filter.spec.md",
+          "type": "registry:file",
+          "target": "@ui/period-filter/period-filter.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/period-filter/period-filter.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/period-filter/period-filter.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/period-filter/period-filter.tsx",
+          "type": "registry:ui",
+          "target": "@ui/period-filter/period-filter.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "PeriodFilter",
+        "dirName": "period-filter",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["period-filter.spec.md"]
+      }
+    },
+    {
+      "name": "popconfirm",
+      "type": "registry:ui",
+      "title": "Popconfirm",
+      "description": "특정 요소를 클릭했을 때 확인/취소 버튼이 포함된 팝오버를 표시하는 컴포넌트.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds"],
+      "categories": ["common", "overlay"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/popconfirm/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/popconfirm/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/popconfirm/popconfirm.spec.md",
+          "type": "registry:file",
+          "target": "@ui/popconfirm/popconfirm.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/popconfirm/popconfirm.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/popconfirm/popconfirm.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/popconfirm/popconfirm.tsx",
+          "type": "registry:ui",
+          "target": "@ui/popconfirm/popconfirm.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "Popconfirm",
+        "dirName": "popconfirm",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["popconfirm.spec.md"]
+      }
+    },
+    {
+      "name": "radio-card",
+      "type": "registry:ui",
+      "title": "RadioCard",
+      "description": "테두리 카드형(선택 리스트 UI)으로 표시되는 라디오 컴포지션. 카드 전체를 선택 영역으로 사용하며 라벨(좌)과 라디오 dot(우)을 함께 배치한다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "class-variance-authority@^0.7.1"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/radio-card/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/radio-card/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/radio-card/radio-card.spec.md",
+          "type": "registry:file",
+          "target": "@ui/radio-card/radio-card.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/radio-card/radio-card.style.ts",
+          "type": "registry:ui",
+          "target": "@ui/radio-card/radio-card.style.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/radio-card/radio-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/radio-card/radio-card.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "RadioCard",
+        "dirName": "radio-card",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["radio-card.spec.md"]
+      }
+    },
+    {
+      "name": "range-date-picker",
+      "type": "registry:ui",
+      "title": "RangeDatePicker",
+      "description": "`RangeCalendar`를 표준 패널 스타일(테두리·라운드·그림자·패딩)로 감싼 범위 날짜 선택 합성.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@internationalized/date@^3.12.1", "@turbo-project/afds"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/range-date-picker/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/range-date-picker/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/range-date-picker/range-date-picker.spec.md",
+          "type": "registry:file",
+          "target": "@ui/range-date-picker/range-date-picker.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/range-date-picker/range-date-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/range-date-picker/range-date-picker.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "RangeDatePicker",
+        "dirName": "range-date-picker",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["range-date-picker.spec.md"]
+      }
+    },
+    {
+      "name": "range-filter",
+      "type": "registry:ui",
+      "title": "RangeFilter",
+      "description": "숫자 최소/최대값 두 입력 + Reset/Cancel/Apply 패널 형태의 범위 필터. 자체 오버레이는 가지지 않으며 호출자가 `Popover.Content` 등에 배치한다.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "form"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/range-filter/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/range-filter/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/range-filter/range-filter.spec.md",
+          "type": "registry:file",
+          "target": "@ui/range-filter/range-filter.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/range-filter/range-filter.tsx",
+          "type": "registry:ui",
+          "target": "@ui/range-filter/range-filter.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/range-filter/validate-range.ts",
+          "type": "registry:ui",
+          "target": "@ui/range-filter/validate-range.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/base-input.spec.md",
+          "type": "registry:file",
+          "target": "@ui/base-input/base-input.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/base-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/base-input/base-input.tsx"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/base-input/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/base-input/index.ts"
+        }
+      ],
+      "meta": {
+        "pascalName": "RangeFilter",
+        "dirName": "range-filter",
+        "compositionDeps": ["base-input"],
+        "bundledCompositions": ["base-input"],
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["range-filter.spec.md"]
+      }
+    },
+    {
+      "name": "section-error-fallback",
+      "type": "registry:ui",
+      "title": "SectionErrorFallback",
+      "description": "섹션 단위 오류 상태를 표시하는 fallback Composition.",
+      "docs": "@turbo-project/afds 1.2.1 기준으로 생성·검증됐습니다(최소 요구 버전이 아닙니다 — 어느 버전부터 동작하는지는 측정하지 않았습니다). 설치된 afds 가 이보다 낮으면 설치는 성공해도 이후 tsc 가 TS2307 로 깨질 수 있습니다 — 그때는 afds 를 올리세요.",
+      "dependencies": ["@turbo-project/afds", "lucide-react@^0.575.0"],
+      "categories": ["common", "feedback"],
+      "files": [
+        {
+          "path": "packages/afds-registry/src/compositions/section-error-fallback/index.ts",
+          "type": "registry:ui",
+          "target": "@ui/section-error-fallback/index.ts"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/section-error-fallback/section-error-fallback.spec.md",
+          "type": "registry:file",
+          "target": "@ui/section-error-fallback/section-error-fallback.spec.md"
+        },
+        {
+          "path": "packages/afds-registry/src/compositions/section-error-fallback/section-error-fallback.tsx",
+          "type": "registry:ui",
+          "target": "@ui/section-error-fallback/section-error-fallback.tsx"
+        }
+      ],
+      "meta": {
+        "pascalName": "SectionErrorFallback",
+        "dirName": "section-error-fallback",
+        "registryAfdsVersion": "1.2.1",
+        "specFiles": ["section-error-fallback.spec.md"]
+      }
+    }
+  ]
+}

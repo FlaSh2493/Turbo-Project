@@ -1,0 +1,22 @@
+/*
+ * AFDS 토큰 마스터 엔트리 — `@turbo-project/afds/tokens`
+ *
+ * copy-owned(shadcn 식) 소스를 자기 Tailwind 로 컴파일하는 소비자를 위한 토큰 원본이다.
+ * Tailwind · tw-animate-css · 생성 토큰 4계층(primitive·semantic·custom·effects)
+ * · 수동 관리 motion 을 순서대로 조립한다.
+ *
+ * 폰트(Pretendard CDN)는 원격 요청을 강제하므로 `./fonts.css`(= `@turbo-project/afds/tokens/fonts`)
+ * 로 분리했다 — 필요하면 소비자가 직접 import 한다.
+ *
+ * 아래 `@source` 는 **AFDS 패키지 자신의 src** 만 스캔한다. 소비자 코드의 클래스는
+ * 소비자 CSS 에서 `@source '<자기 경로>'` 를 선언해야 생성된다.
+ */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './tokens.css';
+@import './tokens.semantic.css';
+@import './tokens.custom.css';
+@import './tokens.motion.css';
+@import './tokens.effects.css';
+
+@source "../src/**/*.{ts,tsx}";

@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="AFDS / Headless / Multi Select" />
+
+# useMultiSelectDraft
+
+**외부 — 직접 조합용**
+
+`MultiSelect` 컴포넌트는 아이템 토글 즉시 `onValueChange`를 발화하며 펜딩 상태를 내부에서 관리하지 않는다.
+"선택 후 확인" UX가 필요하면 `useMultiSelectDraft`를 외부에서 호출해 `MultiSelect`의 controlled props에 wire한다.
+
+**Import:**
+
+```tsx
+import { useMultiSelectDraft } from '@turbo-project/afds/headless'
+```
+
+## 기본 사용법
+
+```tsx
+const [committed, setCommitted] = useState<string[]>([])
+const [open, setOpen] = useState(false)
+
+const draft = useMultiSelectDraft({ committed, setCommitted, isOpen: open, setOpen })
+
+<MultiSelect open={open} onOpenChange={setOpen} value={draft.value} onValueChange={draft.setValue} options={opts}>
+  <MultiSelect.Trigger />
+  <MultiSelect.Content>
+    <MultiSelect.List render={...} />
+    <MultiSelect.Footer>
+      <Button onClick={draft.reset}>초기화</Button>
+      <Button onClick={draft.cancel}>취소</Button>
+      <Button onClick={draft.confirm} disabled={!draft.isDirty}>확인</Button>
+    </MultiSelect.Footer>
+  </MultiSelect.Content>
+</MultiSelect>
+```
+
+## API
+
+| 반환값      | 타입                    | 설명                                   |
+| ----------- | ----------------------- | -------------------------------------- |
+| `value`     | `string[]`              | 현재 펜딩 값                           |
+| `setValue`  | `(v: string[]) => void` | 펜딩 값 변경                           |
+| `isDirty`   | `boolean`               | 펜딩과 committed가 다를 때 `true`      |
+| `reset()`   | `() => void`            | 펜딩을 `[]`로 초기화 (드롭다운 유지)   |
+| `cancel()`  | `() => void`            | 드롭다운 닫기, 펜딩 폐기               |
+| `confirm()` | `() => void`            | 펜딩을 committed에 반영, 드롭다운 닫기 |
+
+- 드롭다운이 열릴 때 펜딩 = committed 스냅샷
+- 토글은 펜딩에만 반영 — committed는 `confirm()` 호출 시에만 갱신

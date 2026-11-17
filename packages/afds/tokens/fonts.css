@@ -1,0 +1,16 @@
+/*
+ * AFDS 폰트 — 선택(opt-in) 레이어
+ *
+ * Pretendard 를 원격 CDN 에서 받는다. 원격 요청을 강제하는 것은 소비자 선택이어야 하므로
+ * `tokens/index.css`(= `@turbo-project/afds/tokens`)에서 분리해 별도 엔트리로 둔다.
+ *
+ *   @import '@turbo-project/afds/tokens/fonts';   // CDN 사용
+ *
+ * 이 파일은 폰트를 **로드만** 한다. AFDS CSS 는 어디에서도 `font-family` 를 적용하지 않는다 —
+ * `--afds-typography-font-family-base`(tokens/tokens.css)와 `@theme` 의
+ * `--font-family-afds-base` 는 선언만 되어 있고 이를 참조하는 규칙이 없다
+ * (`--font-family-*` 는 Tailwind 네임스페이스가 아니라 유틸리티도 생성되지 않는다).
+ * 실제 적용은 소비자 몫이다 — 자기 `@theme` 에서 `--font-sans` 를 덮는 것이 가장 간단하다.
+ * 자체 호스팅하려면 이 파일을 import 하지 않고 같은 방식으로 `--font-sans` 를 지정한다.
+ */
+@import 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css';

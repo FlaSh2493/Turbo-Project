@@ -1,0 +1,66 @@
+# 릴리스 규율(H1 CI): 패키지 변경 시 changeset 필수 — 없으면 CI 실패
+# (탈출구: pnpm changeset add --empty)
+#
+# 이 게이트를 afds-test.yml 안에 두면 그 워크플로의 paths 필터(packages/afds/**)를
+# 공유하게 되어, packages/afds-registry/** 만 바꾸는 PR 에서는 게이트가 아예 트리거되지
+# 않는다. paths 는 워크플로 단위 설정이라 job 별로 다르게 줄 수 없다. 그래서 별도
+# 워크플로로 분리한다 — 릴리스 규율은 어느 패키지를 바꿨든 적용돼야 한다.
+name: Changeset Check
+
+on:
+  pull_request:
+    # base(대상) 브랜치 필터다. 레포 실제 네이밍은 feat/ 이고 feature/ 브랜치는 0건이라
+    # feat/* 를 base 로 쓰는 PR 이 CI 없이 머지되고 있었다 (feat/ ≠ feature/).
+    branches: ['main', 'develop', 'feature/**', 'feat/**']
+    types: [opened, synchronize, reopened]
+    # paths 필터를 두지 않는다 — 위 주석의 이유. 패키지 변경이 없는 PR 은
+    # `changeset status` 가 "NO packages to be bumped" 로 통과시키므로 안전하다.
+
+  # Actions 탭에서 수동으로 실행 가능
+  workflow_dispatch:
+
+concurrency:
+  group: changeset-check-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changeset-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # 게이트는 그 PR 이 실제로 향하는 base 와 대조해야 한다. base 를 main 으로
+      # 하드코딩하면, base(예: feat/jake)가 origin/main 보다 앞서 있고 그 앞선 커밋들이
+      # changeset 을 들고 있을 때, changeset 을 하나도 추가하지 않은 PR 도 그 남의
+      # changeset 을 근거로 통과한다(false pass). 즉 게이트가 아무것도 검증하지 않는다.
+      # workflow_dispatch 에는 base_ref 가 없으므로 기본 브랜치로 폴백한다.
+      BASE_REF: ${{ github.base_ref || github.event.repository.default_branch || 'main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # persist-credentials 를 끄지 않는다 — 아래 'Fetch base branch' 가 비공개
+          # origin 에 인증 접근을 해야 한다. (chromatic.yml 은 원격 접근이 없어 끈다.)
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch base branch
+        # 명시적 refspec — actions/checkout 이 좁은 fetch refspec 을 설정해 두므로
+        # 브랜치 이름만 넘기면 원격 추적 ref 가 생기지 않을 수 있다.
+        run: git fetch --no-tags origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+
+      - name: Changeset 필수 검증
+        run: pnpm changeset status --since="origin/${BASE_REF}"

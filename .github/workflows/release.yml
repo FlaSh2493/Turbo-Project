@@ -1,0 +1,193 @@
+name: Release
+
+# `main` 에 머지되면 **한 job 안에서** 버전 범프 → 태그 → 배포까지 끝낸다.
+#
+# 왜 한 job 인가 — 나누면 배포가 아예 돌지 않는다(실측된 제약):
+# `GITHUB_TOKEN` 이 일으킨 push 는 **다른 워크플로를 트리거하지 않는다**(GitHub 재귀 방지는
+# 이벤트 종류가 아니라 **액터**에 걸린다). 그래서 "범프 커밋을 push 하면 publish 워크플로가
+# 돈다" 는 배선은 성립하지 않는다. 이전 구조가 `release.yml`(Version PR) → `publish.yml`
+# (커밋 메시지 조건) 로 나뉘어 있었고, 그 사이를 사람이 Version PR 을 머지해 이어야 했다.
+#
+# 왜 Version PR 을 없앴는가 — 그 PR 에는 **워크플로 체크가 아예 생기지 않았다**(upstream #115).
+# 같은 재귀 방지 규칙 때문이다. 실측: Version PR 12건 이상 머지됐는데 Actions 런 0건.
+# 검증이 필요한 것은 **코드**이고, 그 코드는 `feat/jake → main` PR 에서 이미 전부 검증된다.
+# 범프 커밋은 `package.json` 의 버전 필드와 `CHANGELOG` 만 바꾼다 — 검증할 코드가 없다.
+#
+# ⚠️ 전제: `main` 에 **브랜치 보호가 없다**(2026-09-01 확인). 필수 상태 체크를 걸면
+# 이 job 의 push 가 막혀 릴리스가 다시 멈춘다. 그때는 GitHub App 토큰이나 bypass 가 필요하다.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=4096'
+  # npm 배포 인증. 저장소 시크릿 `NPM_TOKEN` 이 필요하다.
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  release:
+    name: Version, tag, publish
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write # chromatic.yml 트리거
+      contents: write # 범프 커밋·태그 push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # changeset publish 가 태그를 만들 때 이력이 필요하다.
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 대기 changeset 이 있는지 **이름으로** 센다. 개수만 보면 0 과 "못 셌다" 를 구분할 수 없다.
+      # 대기 changeset 을 **등급 유무로 갈라** 센다. 개수만 보면 「무릴리스 changeset 이
+      # 소진된 것」과 「실제 범프」를 구분할 수 없고, 아래 가드가 그 차이로 판정한다.
+      # 판정 규칙은 `.github/scripts/__tests__/release-guard.test.sh` 가 고정한다.
+      - name: 대기 changeset 확인
+        id: pending
+        run: bash .github/scripts/changeset-grade.sh
+
+      - name: 버전 범프 + CHANGELOG
+        if: steps.pending.outputs.count != '0'
+        env:
+          # `${{ }}` 를 run 본문에 직접 박지 않는다. git 은 브랜치 이름에 `;` `$` `` ` ``
+          # `&` `|` `(` `)` 를 허용하므로, 그런 이름의 브랜치에서 이 워크플로가 dispatch 되면
+          # 보간된 문자열이 셸 문법으로 해석된다. 이 job 은 contents·packages·actions write 를
+          # 들고 있어 대가가 크다. 환경변수로 넘기고 인용해서 쓴다.
+          BRANCH: ${{ github.ref_name }}
+          GRADED: ${{ steps.pending.outputs.graded }}
+        run: |
+          set -euo pipefail
+          BEFORE="$(bash .github/scripts/snapshot-versions.sh)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          pnpm version-packages
+          # afds 버전이 afds-registry 레지스트리 매니페스트에 박혀 있다(`afdsVersion` ·
+          # 항목별 `meta.registryAfdsVersion`). 범프 후 재생성하지 않으면 main 의 매니페스트가
+          # 낡은 채 남고, 그 뒤 **모든 PR 의 afds-registry-test 가 실패한다** — 릴리스가 CI 를
+          # 통째로 막는다. 실측: 1.0.0 범프(716b29a) 직후 PR #151 이 그렇게 실패했다.
+          # `pnpm --filter` 대신 헬퍼를 쓴다 — 스크립트가 사라져도 exit 0 이 되는 함정 때문이다.
+          bash .github/scripts/pnpm-run.sh packages/afds-registry generate:registry
+          # ⚠️ **`git diff` 로 「범프가 일어났나」를 재지 마라 — 다른 것을 잰다.**
+          #
+          # 무릴리스 changeset(`changeset add --empty`)은 버전을 올리지 않지만
+          # `changeset version` 이 그것을 **소진(삭제)** 하므로 작업 트리에는 변경이 생긴다.
+          # 그래서 `git diff --quiet` 는 통과하고, 커밋 메시지가 「버전 범프」라고 말하는데
+          # 실제로는 changeset 하나가 지워진 것뿐인 **거짓 커밋**이 남는다.
+          # 실측(`c42a780`): 버전 변경 0건 · CHANGELOG 변경 0건 · changeset 삭제 6줄.
+          #
+          # 그래서 **버전 자체를 전후로 비교하고, 등급 수로 어느 쪽을 기대할지 가른다.**
+          # 두 방향을 다 단정한다 — 등급이 있는데 안 올랐거나, 없는데 올랐으면 둘 다 실패다.
+          AFTER="$(bash .github/scripts/snapshot-versions.sh)"
+          if [ "${GRADED}" -gt 0 ]; then
+            if [ "$BEFORE" = "$AFTER" ]; then
+              echo '::error::등급 있는 changeset 이 있었는데 버전이 하나도 오르지 않았다.'
+              exit 1
+            fi
+            MSG='chore(release): 버전 범프 및 CHANGELOG 갱신'
+          else
+            if [ "$BEFORE" != "$AFTER" ]; then
+              echo '::error::무릴리스 changeset 만 있었는데 버전이 올랐다 — 등급 판정이 틀렸다.'
+              exit 1
+            fi
+            # 커밋은 여전히 필요하다. 소진하지 않으면 다음 머지마다 같은 일이 반복된다.
+            MSG='chore(release): 무릴리스 changeset 을 소진한다'
+          fi
+          # 소진조차 안 됐으면 대기 목록이 줄지 않는다 — 그것은 별 문제다.
+          if git diff --quiet; then
+            echo '::error::changeset version 이 아무것도 바꾸지 않았다 — 대기 changeset 이 소진되지 않았다.'
+            exit 1
+          fi
+          git add -A
+          # `--no-verify` 가 **필수**다. 이 커밋은 정의상 "패키지 변경 + changeset 0건" 이라
+          # 로컬 훅(`.husky/pre-push` → `.github/scripts/check-changeset.sh`)을 **원리적으로 통과할 수 없다**:
+          # 버전 필드를 바꾸면서 `.changeset/*.md` 를 전부 소진하므로 `changeset status` 가
+          # "No changesets present" 로 실패한다. 그리고 `pnpm install` 이 `prepare: husky` 로
+          # 훅을 러너에 설치하므로 CI 안에서도 훅이 돈다.
+          #
+          # 실측: run 33491773296 이 정확히 이 지점에서 죽었다 — 커밋(4054cfe, 34파일)은 만들어졌고
+          # push 만 `husky - pre-push script failed (code 1)` 로 거부돼 배포 스텝 전부 skip.
+          #
+          # 훅 스크립트 자체에 CI 탈출구를 넣지 않는다. CI 의 진짜 게이트는
+          # `changeset-check.yml` 이고 그것은 `pnpm changeset status` 를 직접 부른다 —
+          # 스크립트를 무르게 만들면 로컬 규율만 잃고 얻는 것이 없다. 우회는 이 한 지점에서만 한다.
+          git commit --no-verify -m "$MSG"
+          git push --no-verify origin "HEAD:${BRANCH}"
+
+      # `publish` 만 주면 action 은 publish 모드로 동작한다.
+      # `changeset publish` 가 배포와 함께 패키지별 git 태그를 만들어 push 한다.
+      - name: Publish to registry
+        id: changesets
+        uses: changesets/action@d94a5c301145045a0960133674e003b265942a22 # v1.8.0
+        with:
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: GitHub Release 생성
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISHED: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          set -euo pipefail
+          # publishedPackages 는 [{name, version}, ...] 이다. 패키지마다 태그가 이미 있으므로
+          # 그 태그로 Release 만 만든다. 이미 있으면 건너뛴다(재실행 안전).
+          printf '%s' "$PUBLISHED" | jq -r '.[] | "\(.name)@\(.version)"' | while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "이미 있다: $tag"
+            else
+              gh release create "$tag" --title "$tag" --generate-notes
+              echo "생성: $tag"
+            fi
+          done
+
+      # afds 가 실제로 배포됐을 때만 Chromatic 정식 빌드를 돌린다.
+      #
+      # 이름을 **정확히** 대조한다. `contains(publishedPackages, '@turbo-project/afds')` 는
+      # 직렬화된 JSON 의 부분문자열 검사라 `@turbo-project/afds-tokens` 같은 패키지가 생기면
+      # afds 가 배포되지 않았는데도 트리거된다(지금은 그런 패키지가 없어 잠복 상태다).
+      #
+      # 그리고 배포된 **버전을 dispatch 입력으로 넘긴다.** 넘기지 않으면 chromatic.yml 이
+      # 자기 실행 시점의 "가장 최근 afds 릴리즈" 를 스스로 찾는데(`chromatic.yml` 의
+      # `Append Storybook URL` 스텝), 릴리스가 연달아 나오면 이번 빌드의 Storybook URL 이
+      # **다음 릴리즈 노트**에 붙고 이번 릴리즈에는 링크가 안 남는다.
+      - name: Trigger Storybook deploy to Chromatic
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISHED: ${{ steps.changesets.outputs.publishedPackages }}
+          # 위와 같은 이유로 브랜치 이름은 환경변수로 받는다.
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          TAG="$(printf '%s' "$PUBLISHED" | jq -r '
+            [.[] | select(.name == "@turbo-project/afds")][0]
+            | if . == null then "" else "\(.name)@\(.version)" end
+          ')"
+          if [ -z "$TAG" ]; then
+            echo 'afds 는 이번에 배포되지 않았다 — Chromatic dispatch 를 건너뛴다.'
+            exit 0
+          fi
+          echo "afds 배포됨: ${TAG} — Chromatic 정식 빌드를 트리거한다."
+          gh workflow run chromatic.yml --ref "$BRANCH" -f afds_tag="$TAG"

@@ -1,0 +1,4 @@
+{
+  "domains": ["common"],
+  "categories": ["form", "overlay", "display", "navigation", "layout", "feedback"]
+}

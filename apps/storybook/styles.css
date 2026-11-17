@@ -1,11 +1,10 @@
-/* Pretendard 폰트 CDN - Tailwind 4에서 중첩 @import url()이 처리되지 않아 직접 추가 */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+@import '@turbo-project/afds/styles';
 
-/* UI 패키지의 모든 스타일 포함 (Tailwind + 테마 변수 + 타이포그래피) */
-@import '@turbo-project/front-core-design/styles';
+/* 컴포지션(packages/afds-registry)도 이 Storybook 에 실린다. AFDS styles 의 @source 는 AFDS 자신의
+   src 만 스캔하므로, 컴포지션에만 쓰인 클래스는 여기서 선언하지 않으면 CSS 가 생성되지 않는다. */
+@source '../../packages/afds-registry/src/**/*.{ts,tsx}';
 
-/* 스토리 파일들에서 사용하는 Tailwind 클래스를 스캔하도록 소스 추가 */
-@source "./stories/**/*.{ts,tsx}";
-
-/* UI 패키지 소스 스캔 - node_modules 심볼릭 링크 경로 */
-@source "./node_modules/@turbo-project/front-core-design/src/**/*.{ts,tsx}";
+/* 문서 본문은 flex 자식이라 min-width 기본값(auto)이 긴 한 줄 코드 블록(Storybook 이 인라인 min-width: fit-content 를 건다)만큼 늘어나 본문 전체가 양옆으로 밀린다 — 0 이면 코드 블록이 자기 스크롤 영역 안에서 스크롤된다. */
+.sbdocs-content {
+  min-width: 0;
+}

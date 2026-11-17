@@ -1,4 +1,12 @@
 {
   "extends": ["@turbo-project/tsconfig/tsconfig.base.json"],
-  "include": ["stories", "*.ts"]
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["../../packages/afds/src/*"],
+      "@turbo-project/afds": ["../../packages/afds/src/index.ts"],
+      "@turbo-project/afds/*": ["../../packages/afds/src/*"]
+    },
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"]
+  },
+  "include": ["stories", "*.ts", "../../packages/afds/src"]
 }

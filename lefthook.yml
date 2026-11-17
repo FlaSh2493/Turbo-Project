@@ -1,0 +1,57 @@
+# 로컬 훅 — 설치·우회 금지·분담은 docs/info/harness.md 「훅 설치」·「훅/CI 분담」.
+# 훅은 건너뛰거나 설치하지 않으면 돌지 않는다. 최종 관문은 CI 다(main 보호가 보류 중이라 서버가 대신 막지 못한다).
+
+pre-commit:
+  jobs:
+    # 설치돼 있을 때만 — 없으면 조용히 건너뛴다. 최종 관문은 CI secret-scan.
+    - name: gitleaks
+      run: 'if command -v gitleaks >/dev/null 2>&1; then gitleaks git --pre-commit --staged --redact --no-banner; fi'
+
+    # 패키지마다 root 를 달리해 그 패키지의 oxlint·ESLint 설정이 실제로 적용되게 한다.
+    # oxlint --fix → ESLint 잔여(no-restricted-syntax) --fix.
+    # 앞의 `-A all -D typescript/ban-ts-comment` 는 검사 전용이다 — oxlint --fix 는 `@ts-ignore` 를
+    # `@ts-expect-error` 로 조용히 고쳐 통과시키지만 ESLint(이전 lint-staged)는 오류로 막았다. 그 동작을 유지한다.
+    - name: lint afds
+      root: packages/afds/
+      glob: '*.{ts,tsx,js,jsx}'
+      # root 는 문자열 접두사로 거른다 — `packages/afds-registry/**` 도 걸려 `-registry/...` 로 잘린 경로가 넘어온다.
+      exclude:
+        - 'packages/afds-registry/**'
+      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+    - name: lint afds-registry
+      root: packages/afds-registry/
+      glob: '*.{ts,tsx,js,jsx}'
+      run: pnpm exec oxlint -A all -D typescript/ban-ts-comment {staged_files} && pnpm exec oxlint --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+    # 파일 하나만 보여도 설정이 그 패키지 전체 기준이라 3파일 전체를 돈다.
+    - name: lint storybook
+      root: apps/storybook/
+      glob: '*.{ts,tsx,js,jsx}'
+      run: pnpm lint
+
+    # 위 셋이 아닌 파일(figma 패키지·설정·루트). oxlint 바이너리는 루트 devDep 이 아니라 afds-registry 것을 쓴다.
+    - name: lint root
+      glob: '*.{ts,tsx,js,jsx}'
+      exclude:
+        - 'packages/afds/**'
+        - 'packages/afds-registry/**'
+        - 'apps/storybook/**'
+      run: packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json -A all -D typescript/ban-ts-comment {staged_files} && packages/afds-registry/node_modules/.bin/oxlint -c .oxlintrc.json --fix {staged_files} && pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+    - name: prettier
+      run: pnpm exec prettier --ignore-unknown --write {staged_files}
+      stage_fixed: true
+
+# 6단계는 .lefthook/pre-push/pre-push.sh 한 스크립트다 — `run:` 잡은 push 할 파일이 없으면 lefthook 이
+# 통째로 건너뛰어(「no matching push files」) 가드가 안 돈다. `script:` 는 건너뛰지 않는다.
+# use_stdin 이 없으면 block-main-push.sh 가 빈 입력을 받아 main 대상 push 도 조용히 통과한다.
+pre-push:
+  jobs:
+    - name: pre-push
+      use_stdin: true
+      script: pre-push.sh
+      runner: sh

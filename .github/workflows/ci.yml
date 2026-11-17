@@ -1,0 +1,345 @@
+# CI 오케스트레이터 — 필수 체크(required status check)의 단일 진입점
+#
+# ## 왜 이 워크플로가 있나
+#
+# 이전에는 afds-test.yml · afds-registry-test.yml · chromatic.yml 이 각자 `pull_request` +
+# `paths` 로 트리거됐다. 그 구조는 브랜치 보호와 근본적으로 맞지 않는다:
+#
+# - paths 필터를 가진 워크플로를 필수 체크로 지정하면, 그 경로를 건드리지 않는 PR 에서
+#   체크가 **보고되지 않아** GitHub 이 "expected but not reported" 로 영구히 기다린다.
+#   PR 이 막히고, 사람은 곧 보호를 끄는 쪽을 배운다.
+# - afds-test.yml 과 afds-registry-test.yml 의 job 이름이 둘 다 `test` 였다. 필수 체크는
+#   **이름으로 매칭**하므로 `test` 를 필수로 두면 두 생산자 중 무엇이 보고했는지와
+#   무관하게 충족된다 — afds-registry 만 돌아도 afds 요구가 채워지는 형태였다.
+#
+# 그래서 이 워크플로는 **paths 필터 없이 항상 실행**되고, 경로 관련성(relevance) 판정을
+# 독점한다. 하위 워크플로는 `workflow_call` 로만 호출된다. GitHub 이 기다릴 체크가
+# 애초에 생기지 않으므로 "expected but not reported" 문제를 **회피**하는 것이 아니라
+# **없앤다.**
+#
+# 단, 그것은 **paths 축에 한해서다.** 아래 `branches:` 축에는 같은 교착이 그대로 남아
+# 있다 — 이 목록 밖의 브랜치를 base 로 하는 PR 에서는 이 워크플로가 아예 돌지 않으므로,
+# 그런 브랜치에 보호를 걸면 즉시 영구 대기가 된다. **보호 브랜치를 늘리면 이 목록도
+# 함께 넓혀야 한다.** (`changeset-check.yml` 도 같은 목록을 쓴다.)
+#
+# ## 이 워크플로로 닫히지 않는 경로 — main 에 필수 체크를 걸 수 없다
+#
+# `release.yml` 은 Version PR 없이 `main` push 시 **한 job 안에서** 직접 버전 범프·태그·
+# 배포까지 끝낸다(그 워크플로 머리 주석 참고). 그 job 의 `git push` 가 막히면 릴리스가
+# 멈추므로, PAT·GitHub App 토큰 없이 `main` 에 필수 체크를 걸면 안 된다 — 이유는
+# `release.yml:16-17`.
+#
+# ## fail-closed
+#
+# relevance 판정이 틀리면 필요한 검사를 조용히 건너뛴다 — 그게 이 저장소가 반복해 밟은
+# 패턴이다. 그래서 `changes` job 은 **판정할 수 없으면 실행하는 쪽**으로 넘어진다:
+# 변경 파일 목록을 못 가져와도, 알려진 경로 목록에 없는 최상위 디렉터리가 나와도,
+# 판정 로직이 실패해도 전부 "관련 있음" 이다. 비용이 조금 더 드는 쪽이 조용히 안 도는
+# 것보다 낫다.
+#
+# ## 남는 위험 — startup_failure 는 gate 조차 지운다
+#
+# 피호출 워크플로(`afds-test.yml`·`afds-registry-test.yml`)의 YAML 이 깨지거나 호출자 권한이
+# 좁으면 GitHub 이 **startup 단계**에서 런 전체를 거부한다. 그러면 job 이 0개라 `gate`
+# 를 포함해 이 워크플로의 체크가 **하나도 보고되지 않는다.** 로그도 annotation 도 없다.
+# (실측: run 33127698808 — jobs 0개, 해당 커밋의 check-runs 는 changeset-check·chromatic
+# 뿐이었다. 원인은 호출자에 `packages: read` 가 없었던 것.)
+#
+# 이전 구조라면 워크플로 하나만 빨개졌을 것이 지금은 전부 사라진다 — 폭발 반경이 커졌다.
+# 방향 자체는 fail-closed 라 맞지만, **그때는 PR 화면이 아니라 Actions 탭의
+# startup_failure 를 봐야 한다.** 진단 경로를 여기 적어 둔다.
+#
+# `gate` 는 `if: always()` 로 **항상 보고**되며, "돌아야 했는가"(changes 출력)와
+# "돌았는가"(needs.*.result)를 대조한다. 두 값이 같은 실행의 같은 데이터에서 나오므로
+# 어긋날 수 없다. 정당한 스킵과 배선 오류를 구분하는 것이 이 job 의 존재 이유다.
+name: CI
+
+on:
+  pull_request:
+    # base(대상) 브랜치 필터다. 레포 실제 네이밍은 feat/ 이고 feature/ 브랜치는 0건이라
+    # feat/* 를 base 로 쓰는 PR 이 CI 없이 머지되고 있었다 (feat/ ≠ feature/).
+    branches: ['main', 'develop', 'feature/**', 'feat/**']
+    types: [opened, synchronize, reopened]
+    # paths 필터를 두지 않는다 — 위 머리 주석의 이유. 이 워크플로는 항상 돌아야 한다.
+
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  # 피호출 워크플로(afds-test·afds-registry-test)가 @turbo-project 비공개 의존성을 받으려면
+  # packages: read 가 필요하다. **호출자의 권한이 피호출자보다 좁으면 GitHub 이
+  # startup 단계에서 거부한다**("permissions ... can only be equal to or more
+  # restrictive than the calling workflow") — 실제로 run 33127698808·33127727401 이
+  # 그 이유로 startup_failure 였다. 로그도 annotation 도 남지 않아 원인이 보이지 않는다.
+  packages: read
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # 경로 관련성 판정 — 저장소 전체에서 이 판정을 하는 유일한 곳이다.
+  # ───────────────────────────────────────────────────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      afds: ${{ steps.detect.outputs.afds }}
+      afds_registry: ${{ steps.detect.outputs.afds_registry }}
+      reason: ${{ steps.detect.outputs.reason }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # base...HEAD diff 를 내려면 양쪽 히스토리가 필요하다.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Detect changed areas (fail-closed)
+        id: detect
+        env:
+          # 브랜치 이름이 아니라 **커밋 SHA** 를 넘긴다. fetch-depth: 0 이면 이 커밋이
+          # 이미 로컬에 있어 네트워크 접근이 필요 없다 — persist-credentials: false 와
+          # 양립한다(자격증명 없이 fetch 하려다 항상 실패하던 것을 고쳤다).
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EVENT: ${{ github.event_name }}
+        run: bash .github/scripts/ci-detect-changes.sh
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 하위 워크플로 호출. if 로 걸러도 gate 가 "돌아야 했는지" 를 알고 있으므로
+  # 조용한 스킵이 되지 않는다.
+  # ───────────────────────────────────────────────────────────────────────────
+  afds:
+    needs: changes
+    if: needs.changes.outputs.afds == 'true'
+    # secrets: inherit 를 쓰지 않는다. 피호출 워크플로가 참조하는 secret 은
+    # `secrets.GITHUB_TOKEN` 뿐이고 그것은 inherit 없이도 주어진다. inherit 는 저장소의
+    # **모든** secret(CHROMATIC_PROJECT_TOKEN 등)을 넘기므로 최소권한에 어긋난다.
+    uses: ./.github/workflows/afds-test.yml
+
+  afds-registry:
+    needs: changes
+    if: needs.changes.outputs.afds_registry == 'true'
+    # secrets: inherit 미사용 — 위 afds job 의 주석 참조.
+    uses: ./.github/workflows/afds-registry-test.yml
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 판정 스크립트 자신의 회귀 테스트.
+  #
+  # `ci-gate.sh` 와 `ci-detect-changes.sh` 는 이 CI 의 **판정 주체**다. 그것들이 조용히
+  # 틀리면 모든 PR 의 판정이 틀린다. 그래서 관련성 판정에 걸지 않고 **항상** 돌린다 —
+  # 판정 주체를 검사하는 테스트가 조건부로 도는 것은 자기모순이다.
+  #
+  # bash 만 쓰므로 pnpm install 이 없다(수 초). 러너의 yq 로 YAML 을 파싱하고, 없으면
+  # python3+PyYAML → node+repo yaml 순으로 내려가며, 셋 다 없으면 실패한다(fail-closed).
+  # ───────────────────────────────────────────────────────────────────────────
+  scripts-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      # pnpm 바이너리가 필요하다 — `pnpm-run.sh` 스위트가 **실제 임시 워크스페이스**를
+      # 만들어 종료코드 전파를 검증하기 때문이다. `pnpm install` 은 하지 않는다(의존성
+      # 없이 스크립트 실행만 확인하므로). 없으면 rc=127 로 실패한다 — 실제로 그랬다.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - name: Run CI script regression tests
+        run: bash .github/scripts/__tests__/run-all.sh
+
+      - name: Check package boundaries
+        run: node .github/scripts/check-package-boundaries.mjs
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 저장소 전역 속성 검사 — **조건 없이 항상 돈다**
+  #
+  # 두 검사가 이 잡에 함께 있다. 잡 이름은 `format` 으로 남긴다(브랜치 보호가 체크를
+  # **이름으로** 매칭하므로 바꾸면 보호 설정을 함께 손봐야 한다).
+  #
+  #   · `knip`                     — 미사용 코드·의존성
+  #   · `verify:docs:citations`    — 문서 인용 축
+  #
+  # 포맷(`format:check`)은 여기서 뺐다 — 서식은 pre-commit 의 `prettier --write` 가 맡는다(사용자 결정 2026-10-28).
+  #
+  # **왜 같은 잡인가.** 둘 다 (a) 입력이 저장소 전역이라 어느 패키지 잡도 함의하지 않고,
+  # (b) `pnpm install` 까지만 필요하다(빌드 불필요). 그래서 셋업을 공유한다 — 새 무조건
+  # 잡을 만들면 checkout·pnpm·node·`@turbo-project` 인증·install 을 한 번 더 치른다.
+  #
+  # ## 인용 축이 왜 조건부일 수 없나 — 두 축의 비대칭
+  #
+  #   인용 축   **소스가 하나도 안 바뀌어도 깨진다.** 릴리스가 changeset 을 소진하면
+  #             그것을 가리킨 인용 경로가 사라진다 → 어떤 패키지 잡도 켜지지 않는다.
+  #             결합이 없으므로 무조건이어야 한다.
+  #   import 축 afds 의 export 표면이 바뀌어야 깨지고, 그 변경은 afds 잡을 켠다.
+  #             결합이 커버하므로 조건부로 둬도 된다 → `afds-test.yml` 에 그대로 있다.
+  #
+  # 그래서 인용 축을 `afds` 관련성에 매달면 원인 PR 이 아닌 **남의 PR** 에서 터지고,
+  # 잡은 사람이 원인을 모른다. 실측 구멍: `docs/info/harness.md`(아무 잡도 안 돈다) ·
+  # `packages/afds-registry/**` 문서(afds_registry 만 true — 잡은 도는데 검사가 그 잡에 없다).
+  #
+  # **판정기(`ci-detect-changes.sh`)는 바꾸지 않는다.** 거기에 문서 경로를 더하면 검사기의
+  # 대상 목록과 판정기의 경로 목록이 두 곳에서 같은 것을 들게 되고 하나가 낡는다. 무조건
+  # 실행이면 두 곳이 갈릴 수 없다 — `ci-detect.test.sh` 의 `의도` 픽스처도 그대로 유효하다.
+  #
+  # ## 세 검사를 헷갈리지 마라 — 서로 다른 것을 본다
+  #
+  #   인용 축(여기)         문서의 경로·`file:line`·심볼 인용이 **소스**로 해소되는가
+  #   import 축(afds 잡)    문서의 `import` 가 **`dist/*` 런타임 표면**으로 해소되는가
+  #   `verify:exports`      `npm pack` tarball 을 풀어 진입점을 import — 작업 트리를 안 본다
+  #
+  # 패키지 변경 여부와 무관하게 돈다 — `changes` 판정에 매달면 「문서만 고친 PR」이 검사를 건너뛴다.
+  # ───────────────────────────────────────────────────────────────────────────
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # **인용 축의 드리프트 검사가 git blame 을 쓴다 — shallow 면 오탐한다.**
+          # 인용 줄의 blame 커밋에서 「그 인용이 쓰인 시점의 내용」을 읽어 현재와 비교하는데,
+          # depth 1 이면 그 기준 ref 를 조회할 수 없어 `knownContentLoss` 예외가 「죽은 예외」로
+          # 보고된다. 실측(이 잡의 첫 런): `· 기준 ref 조회 불가(shallow clone?)` 와 함께
+          # `★ 죽은 예외` 4건으로 실패했다. PR #143 이 `afds-test.yml` 에서 같은 이유로
+          # `fetch-depth: 0` 을 쓰게 된 사고와 같은 것이다 — 같은 값을 쓴다.
+          #
+          # **검사를 이 잡에 더하면 그 검사가 요구하는 체크아웃 조건도 함께 와야 한다.**
+          fetch-depth: 0
+          # blame 은 로컬 히스토리만 읽는다 — 자격증명이 필요 없다(`changes` 잡과 같은 조합).
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      # prettier 바이너리가 필요하다. `--frozen-lockfile` 이라 lockfile 이 어긋나면
+      # 여기서 먼저 실패한다 — 그것도 잡아야 하는 종류다.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # knip — 미사용 파일·export·의존성. 설정(`knip.json`)이 기준선이고, 새 지적·안 쓰는 ignore 모두 실패다.
+      # 저장소 전역 검사라 패키지 잡이 아니라 여기서 돈다(빌드 불필요).
+      - name: Knip
+        run: pnpm knip
+
+      # 문서 인용 축. `--no-imports` 로 import 축을 뺀다 — 그 축만 `dist` 를 필요로 하고,
+      # 여기에 빌드를 들이면 모든 PR 이 **구멍과 무관한 축** 때문에 빌드를 치른다.
+      # (`--no-imports` 는 건너뛴 사실을 로그에 출력한다. 오타 플래그는 exit 2 로 막는다.)
+      #
+      # `pnpm --filter <pkg> <없는 스크립트>` 는 exit 0 이므로 헬퍼를 거친다 — 위 `pnpm knip` 은
+      # **루트** 스크립트라 부재 시 exit 254 로 이미 fail-closed 지만, 이쪽은 패키지 스크립트라
+      # 그 보호가 없다.
+      - name: Verify doc citations (citation axis)
+        run: bash .github/scripts/pnpm-run.sh packages/afds verify:docs:citations
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 비밀 스캔 — **조건 없이 항상 돈다.** 비밀은 어느 경로에나 들어올 수 있다.
+  #
+  # **PR 이 들인 커밋만 본다**(`base.sha..head.sha`). 이력에는 `.npmrc` 의 `github-pat`
+  # 4건(c0974326·7c317c76·cc1d656a·99bb098b)이 남아 있으나 이미 폐기된 토큰이다 — 전수
+  # 스캔이면 모든 PR 이 그 4건으로 빨개진다.
+  #
+  # `gitleaks/gitleaks-action` 은 조직 저장소에서 유료 `GITLEAKS_LICENSE` 를 요구하므로
+  # 쓰지 않는다. 릴리스 바이너리를 받아 **sha256 을 고정해** 검증한다 — 값의 출처는
+  # 릴리스의 `gitleaks_8.30.1_checksums.txt`(릴리스 API 의 asset digest 와 일치, 실측).
+  # 버전을 올리면 URL 과 해시를 함께 바꾼다.
+  #
+  # 저장소의 `.gitleaks.toml`·`.gitleaksignore` 가 있으면 gitleaks 가 읽는다 — PR 이 그 파일을
+  # 들여 규칙을 끌 수 있다는 뜻이다. 지금은 둘 다 없다.
+  # ───────────────────────────────────────────────────────────────────────────
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # base..head 범위의 커밋을 읽으려면 양쪽 히스토리가 필요하다.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install gitleaks (sha256 pinned)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          tgz="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tgz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$tgz"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tgz" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Scan commits introduced by this change
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ]; then
+            RANGE="${BASE_SHA}..${HEAD_SHA}"
+          else
+            # workflow_dispatch — 대상 PR 이 없다. `HEAD^!`(= HEAD 자신을 포함하고 **모든**
+            # 부모를 제외)로 체크아웃한 커밋 하나만 본다. 머지 커밋이면 `HEAD~1..HEAD`(첫
+            # 부모만 제외)는 **머지된 쪽 이력 전체**를 끌고 와 범위가 부풀지만, `HEAD^!` 는
+            # 양쪽 부모를 다 제외해 그 커밋 자신(remerge diff)만 남는다. 머지가 아니면 둘 다
+            # 커밋 1개로 같다.
+            RANGE="HEAD^!"
+          fi
+          # **gitleaks 는 풀리지 않는 범위에서 exit 0 이다**("0 commits scanned · no leaks found",
+          # 실측 8.30.1). 그래서 범위를 먼저 git 으로 풀어 본다 — 대입이라 `set -e` 가 실패를
+          # 전파한다(`echo "$(…)"` 안에 두면 echo 의 0 이 그것을 삼킨다).
+          N="$(git rev-list --count "$RANGE")"
+          echo "scan range: $RANGE ($N commits)"
+          # --diff-merges=remerge: `git log -p` 는 머지 커밋의 diff 를 기본적으로 안 보여준다
+          # (`--cc`/`-c` 도 두 부모와 겹치는 변경은 숨긴다) — 그래서 머지 **해결 중** 넣은
+          # 비밀이 스캔에서 빠진다. remerge 는 실제 병합 결과를 두 부모로 재병합한 것과
+          # 비교해 **해결 중 들어온 변경만** 보여준다.
+          # -v: 실패 시 File/Line/Commit/RuleID 를 로그에 남긴다 — --redact 가 있으므로 값
+          # 자체는 여전히 REDACTED 로 찍힌다.
+          gitleaks git -v --redact --no-banner --log-opts="--diff-merges=remerge $RANGE" .
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 집계 게이트 — **이것을 필수 체크로 지정한다.**
+  # ───────────────────────────────────────────────────────────────────────────
+  gate:
+    needs: [changes, afds, afds-registry, scripts-test, format, secret-scan]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Aggregate results
+        env:
+          # 하위 job 의 결론과 "돌아야 했는가" 를 짝지어 넘긴다.
+          # 형식: <이름>|<should_run>|<result>|<needs_key>
+          # 4번째 필드는 이 행이 대응하는 job id 다. 게이트가 NEEDS_JSON 의 키와 대조해
+          # **needs 에 추가됐는데 여기 빠진 job** 을 잡는다 — 그런 job 은 실패해도
+          # 게이트가 초록이 되므로, 이 PR 이 고치는 결함과 같은 부류가 된다.
+          CHECKS: |
+            changes|true|${{ needs.changes.result }}|changes
+            afds-test|${{ needs.changes.outputs.afds }}|${{ needs.afds.result }}|afds
+            afds-registry-test|${{ needs.changes.outputs.afds_registry }}|${{ needs['afds-registry'].result }}|afds-registry
+            scripts-test|true|${{ needs['scripts-test'].result }}|scripts-test
+            format|true|${{ needs.format.result }}|format
+            secret-scan|true|${{ needs['secret-scan'].result }}|secret-scan
+          DETECT_REASON: ${{ needs.changes.outputs.reason }}
+          # 게이트 자기검사의 기준. 이것이 비면 게이트는 대조 불가로 실패한다(fail-closed).
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: bash .github/scripts/ci-gate.sh
