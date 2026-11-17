@@ -3,39 +3,9 @@ import { describe, it } from "node:test";
 
 import { prompt } from "../../scripts/risk-judge.mjs";
 import {
-  checkBaseBranch,
   isRevertPr,
   originalPrNumber,
 } from "../../scripts/risk-tier.mjs";
-
-describe("main으로 가는 PR의 출처 브랜치", () => {
-  for (const head of ["develop", "staging", "hotfix/ABC-8679", "release/abc-8721"]) {
-    it(`${head} → main은 허용한다`, () => {
-      assert.equal(checkBaseBranch("main", head).ok, true);
-    });
-  }
-
-  for (const head of [
-    "feature/agent-chat-sse",
-    "codex/abc-8492",
-    "cherry-pick/overview-prod",
-    "develop-old",
-  ]) {
-    it(`${head} → main은 막고 고칠 방법을 알려 준다`, () => {
-      const result = checkBaseBranch("main", head);
-      assert.equal(result.ok, false);
-      assert.match(result.message, /hotfix\/\*/);
-    });
-  }
-
-  it("main이 아닌 base는 출처와 관계없이 허용한다", () => {
-    assert.equal(
-      checkBaseBranch("develop", "feature/anything").ok,
-      true,
-    );
-  });
-
-});
 
 describe("revert PR", () => {
   it("제목이 revert로 시작하거나 본문에 Reverts 줄이 있으면 revert PR이다", () => {

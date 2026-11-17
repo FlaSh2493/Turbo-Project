@@ -21,13 +21,7 @@ export function originalPrNumber(body, repo) {
   );
 }
 
-const globToRegExp = (glob) =>
-  new RegExp(
-    `^${glob.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`,
-  );
-
 export const PROTECTED_BRANCHES = ["main", "develop", "staging"];
-export const MAIN_SOURCES = [...PROTECTED_BRANCHES, "hotfix/*", "release/*"];
 export const TEST_PATTERNS = [
   "/__tests__/",
   "(^|/)e2e/",
@@ -37,16 +31,6 @@ export const DEFAULT_CONFIG = {
   protectedBranches: PROTECTED_BRANCHES,
   testPatterns: TEST_PATTERNS,
 };
-
-export function checkBaseBranch(base, head, sources = MAIN_SOURCES) {
-  if (base !== "main") return { ok: true };
-  if (sources.some((source) => globToRegExp(source).test(head)))
-    return { ok: true };
-  return {
-    ok: false,
-    message: `main으로는 ${sources.filter((source) => source !== "main").join(", ")}에서만 PR을 엽니다. 지금은 ${head} → main입니다. 운영 수정이면 hotfix/* 브랜치로 옮기세요.`,
-  };
-}
 
 export const TIERS = ["low", "medium", "high"];
 export const LABELS = {

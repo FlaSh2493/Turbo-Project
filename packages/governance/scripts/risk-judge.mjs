@@ -11,7 +11,6 @@ import { fileURLToPath } from "node:url";
 
 import { codeownersProblem, criteria, VERSION } from "../src/governance.mjs";
 import {
-  checkBaseBranch,
   classify,
   DEFAULT_CONFIG,
   isRevertPr,
@@ -347,15 +346,6 @@ if (
     view?.defaultBranchRef?.name ??
     "main";
   const head = pr?.headRefName ?? tryRun("git", ["branch", "--show-current"]);
-  const allowed = checkBaseBranch(baseName, head);
-  if (!allowed.ok) {
-    console.error(
-      pr
-        ? `실패: PR #${pr.number}. ${allowed.message} \`gh pr edit ${pr.number} --base develop\`으로 base를 바꾼 뒤 다시 돌리세요.`
-        : `실패: ${allowed.message} --base를 바꿔 다시 돌리세요.`,
-    );
-    process.exit(1);
-  }
   const remote = tryRun("git", ["remote"]).split("\n").includes("upstream")
     ? "upstream"
     : "origin";
