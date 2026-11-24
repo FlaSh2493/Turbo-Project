@@ -1,0 +1,289 @@
+name: Review request notify
+
+on:
+  workflow_call:
+    inputs:
+      base_branches:
+        type: string
+        default: '["main", "develop", "staging", "staging01"]'
+    secrets:
+      SLACK_BOT_TOKEN:
+        required: true
+      SLACK_CHANNEL_ID:
+        required: true
+
+permissions:
+  pull-requests: read
+
+env:
+  USER_MAP: '{}'
+
+jobs:
+  notify:
+    if: >-
+      ((github.event_name == 'pull_request' || github.event_name == 'pull_request_target') &&
+      contains(fromJSON(inputs.base_branches), github.event.pull_request.base.ref) && (
+        (github.event.action == 'labeled' && github.event.label.name == '리뷰요청') ||
+        (github.event.action == 'review_requested' && github.event.requested_reviewer != null &&
+        contains(github.event.pull_request.labels.*.name, '리뷰요청')) ||
+        (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, '리뷰요청')))) ||
+      (github.event_name == 'pull_request_review' && github.event.review.user.type != 'Bot' &&
+      (github.event.review.state == 'approved' ||
+      (github.event.review.body != null && github.event.review.body != '')) &&
+      contains(github.event.pull_request.labels.*.name, '리뷰요청')) ||
+      (github.event_name == 'pull_request_review_comment' && github.event.comment.user.type != 'Bot' &&
+      contains(github.event.pull_request.labels.*.name, '리뷰요청')) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request != null &&
+      github.event.comment.user.type != 'Bot' && contains(github.event.issue.labels.*.name, '리뷰요청')) ||
+      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    concurrency:
+      group: review-notify-${{ github.repository }}-${{ github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCHES: ${{ inputs.base_branches }}
+        run: |
+          set -euo pipefail
+          EV=$GITHUB_EVENT_PATH
+          PR=$(jq -c '.pull_request // .issue' "$EV")
+          URL=$(jq -r .html_url <<<"$PR")
+          NUMBER=$(jq -r .number <<<"$PR")
+          AUTHOR=$(jq -r .user.login <<<"$PR")
+          TITLE=$(jq -r .title <<<"$PR")
+
+          esc() { local s=${1//&/"&amp;"}; s=${s//</"&lt;"}; printf '%s' "${s//>/"&gt;"}"; }
+          mention() {
+            local id
+            id=$(jq -r --arg u "$1" '.[$u].slack // empty' <<<"$USER_MAP")
+            if [ -n "$id" ]; then printf '<@%s>' "$id"; else printf '@%s' "$1"; fi
+          }
+          display() { jq -r --arg u "$1" '.[$u].name // ("@" + $u)' <<<"$USER_MAP"; }
+          api() {
+            local res
+            res=$(curl -sS -X POST "https://slack.com/api/$1" \
+              -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+              -H "Content-Type: application/json; charset=utf-8" -d "$2")
+            if [ "$(jq -r .ok <<<"$res")" != true ]; then
+              echo "Slack $1 실패: $(jq -r .error <<<"$res")"
+              return 1
+            fi
+          }
+          post() {
+            api chat.postMessage "$(jq -n --arg c "$SLACK_CHANNEL_ID" --arg t "$1" --arg ts "${2:-}" \
+              '{channel:$c, text:$t, unfurl_links:false} + (if $ts == "" then {} else {thread_ts:$ts} end)')"
+          }
+          RES=""
+          fetch_history() {
+            local tries=0 err
+            while :; do
+              RES=$(curl -sS -G https://slack.com/api/conversations.history \
+                -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+                --data-urlencode "channel=$SLACK_CHANNEL_ID" --data-urlencode limit=200 \
+                --data-urlencode "oldest=$1" \
+                ${2:+--data-urlencode "cursor=$2"})
+              [ "$(jq -r .ok <<<"$RES")" = true ] && return 0
+              err=$(jq -r .error <<<"$RES")
+              tries=$((tries + 1))
+              if [ "$err" = ratelimited ] && [ "$tries" -le 5 ]; then
+                sleep $((tries * 5))
+                continue
+              fi
+              echo "Slack conversations.history 실패: $err"
+              exit 1
+            done
+          }
+          MAIN_TS=""
+          MAIN_TEXT=""
+          MAIN_REACTIONS=""
+          find_main() {
+            local cursor="" hit oldest
+            oldest=$(jq -r '.created_at | fromdateiso8601' <<<"$PR")
+            while :; do
+              fetch_history "$oldest" "$cursor"
+              hit=$(jq -c --arg u "<$URL|" \
+                'first(.messages[] | select(.bot_id != null and (.text | startswith(":eyes:")) and (.text | contains($u))) | {ts, text, reactions: ([.reactions[]?.name] | join(" "))}) // empty' <<<"$RES")
+              if [ -n "$hit" ]; then
+                MAIN_TS=$(jq -r .ts <<<"$hit")
+                MAIN_TEXT=$(jq -r .text <<<"$hit")
+                MAIN_REACTIONS=$(jq -r .reactions <<<"$hit")
+                return 0
+              fi
+              cursor=$(jq -r '.response_metadata.next_cursor // empty' <<<"$RES")
+              [ -z "$cursor" ] && return 0
+            done
+          }
+          remind() {
+            local all prs approved="[]" now oldest cursor="" mains="[]" entries waits text ws n a names
+            now=$(date +%s)
+            all=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate | jq -s -c --argjson b "$BASE_BRANCHES" '
+              [.[][] | select(.draft | not) | select(any((.labels // [])[]; .name == "리뷰요청"))
+               | select(.base.ref as $r | $b | index($r))
+               | {number, url: .html_url, title, author: .user.login, created: (.created_at | fromdateiso8601),
+                  reviewers: [(.requested_reviewers // [])[] | .login | select(. != null)]}]')
+            prs=$(jq -c --argjson now "$now" '[.[] | select(.reviewers | length > 0) | select($now - .created >= 86400)]' <<<"$all")
+            for n in $(jq -r '.[].number' <<<"$all"); do
+              approved=$(gh api "repos/$REPO/pulls/$n/reviews?per_page=100" --paginate | jq -s -c \
+                --argjson a "$approved" --argjson p "$(jq -c --argjson n "$n" '.[] | select(.number == $n)' <<<"$all")" --argjson now "$now" '
+                $a + [add // [] | map(select(.user.type != "Bot" and (.state | IN("APPROVED", "CHANGES_REQUESTED", "DISMISSED"))))
+                  | group_by(.user.login) | map(max_by(.submitted_at))
+                  | select(all(.state != "CHANGES_REQUESTED")) | map(select(.state == "APPROVED")) | select(length > 0)
+                  | (map(.submitted_at | fromdateiso8601) | min) as $at
+                  | select($now - $at >= 86400)
+                  | $p + {at: $at, approvers: map(.user.login)}]')
+            done
+            if [ "$(jq length <<<"$prs")" = 0 ] && [ "$(jq length <<<"$approved")" = 0 ]; then
+              echo "챙길 PR 없음"
+              return 0
+            fi
+            oldest=$(jq -n --argjson x "$prs" --argjson y "$approved" '$x + $y | map(.created) | min')
+            while :; do
+              fetch_history "$oldest" "$cursor"
+              mains=$(jq -c --argjson m "$mains" \
+                '$m + [.messages[] | select(.bot_id != null and (.text | startswith(":eyes:"))) | {ts: (.ts | tonumber), raw: .ts, text}]' <<<"$RES")
+              cursor=$(jq -r '.response_metadata.next_cursor // empty' <<<"$RES")
+              [ -z "$cursor" ] && break
+            done
+            entries=$(jq -c --argjson m "$mains" --argjson now "$now" '
+              [.[] as $p
+               | ([$m[] | select(.text | contains("<" + $p.url + "|"))] | min_by(.ts)) as $hit
+               | select($hit != null and ($now - $hit.ts) >= 86400)
+               | (($now - $hit.ts) / 86400 | floor) as $d
+               | $p.reviewers[] | {r: ., url: $p.url, title: $p.title, days: $d, thread: ($hit.raw | gsub("[.]"; ""))}]' <<<"$prs")
+            waits=$(jq -c --argjson m "$mains" --argjson now "$now" '
+              [.[] as $p
+               | ([$m[] | select(.text | contains("<" + $p.url + "|"))] | min_by(.ts)) as $hit
+               | {a: $p.author, url: $p.url, title: $p.title, days: (($now - $p.at) / 86400 | floor),
+                  approvers: ($p.approvers | join(" ")), thread: (if $hit == null then "-" else ($hit.raw | gsub("[.]"; "")) end)}]' <<<"$approved")
+            if [ "$(jq length <<<"$entries")" = 0 ] && [ "$(jq length <<<"$waits")" = 0 ]; then
+              echo "24시간 넘게 기다리는 PR 없음"
+              return 0
+            fi
+            ws=$(curl -sS -X POST https://slack.com/api/auth.test -H "Authorization: Bearer $SLACK_BOT_TOKEN" | jq -r '.url // empty')
+            thread_link() { if [ -n "$ws" ] && [ "$1" != - ]; then printf ' · <%sarchives/%s/p%s|스레드>' "$ws" "$SLACK_CHANNEL_ID" "$1"; fi; }
+            text=":alarm_clock: *${REPO#*/}* 오늘 챙길 PR이에요"
+            if [ "$(jq length <<<"$entries")" != 0 ]; then
+              text+=$'\n\n'":eyes: *리뷰를 기다리는 PR*"
+              for r in $(jq -r 'map(.r) | unique | .[]' <<<"$entries"); do
+                text+=$'\n'"$(mention "$r")"
+                while IFS=$'\t' read -r url days thread title; do
+                  text+=$'\n'"• <${url}|$(esc "$title")> · ${days}일 지남$(thread_link "$thread")"
+                done < <(jq -r --arg r "$r" '.[] | select(.r == $r) | [.url, (.days | tostring), .thread, .title] | @tsv' <<<"$entries")
+                text+=$'\n'
+              done
+              text=${text%$'\n'}
+            fi
+            if [ "$(jq length <<<"$waits")" != 0 ]; then
+              text+=$'\n\n'":white_check_mark: *승인됐는데 머지를 기다리는 PR*"
+              for a in $(jq -r 'map(.a) | unique | .[]' <<<"$waits"); do
+                text+=$'\n'"$(mention "$a")"
+                while IFS=$'\t' read -r url days thread approvers title; do
+                  names=""
+                  for r in $approvers; do names+="${names:+, }$(display "$r")"; done
+                  text+=$'\n'"• <${url}|$(esc "$title")> · 승인 ${days}일 지남 ($(esc "$names"))$(thread_link "$thread")"
+                done < <(jq -r --arg a "$a" '.[] | select(.a == $a) | [.url, (.days | tostring), .thread, .approvers, .title] | @tsv' <<<"$waits")
+                text+=$'\n'
+              done
+              text=${text%$'\n'}
+            fi
+            post "$text"
+          }
+          post_main() {
+            local reviewers="" subject=$TITLE type="" scope="" ticket="" kind what
+            for r in $(jq -r '.requested_reviewers[].login' <<<"$PR"); do reviewers+=" $(mention "$r")"; done
+            if [[ $subject =~ ^(.*[^[:space:]])[[:space:]]*\(([A-Z][A-Z0-9]*-[0-9]+)\)$ ]]; then
+              subject=${BASH_REMATCH[1]}
+              ticket=${BASH_REMATCH[2]}
+            fi
+            if [[ $subject =~ ^([a-z]+)(\(([^\)]+)\))?!?:[[:space:]]*(.+)$ ]]; then
+              type=${BASH_REMATCH[1]}
+              scope=${BASH_REMATCH[3]}
+              subject=${BASH_REMATCH[4]}
+            fi
+            case $type in
+              feat) kind="새 기능" ;;
+              fix) kind="버그 수정" ;;
+              hotfix) kind="긴급 수정" ;;
+              refactor) kind="리팩터링" ;;
+              perf) kind="성능 개선" ;;
+              docs) kind="문서 수정" ;;
+              test) kind="테스트" ;;
+              style) kind="스타일 정리" ;;
+              build) kind="빌드 설정 변경" ;;
+              ci) kind="CI 설정 변경" ;;
+              chore) kind="작업" ;;
+              revert) kind="되돌리기" ;;
+              *) kind="" ;;
+            esac
+            what=$(esc "${scope:+$scope }$kind")
+            post ":eyes: *${REPO#*/}*${what:+ $what} 리뷰 부탁드려요
+
+          :page_facing_up: *<${URL}|$(esc "$subject")>*${ticket:+
+          :ticket: ${ticket}}
+          :pencil2: 요청자  $(display "$AUTHOR")
+          :bust_in_silhouette: 리뷰어 ${reviewers}
+          :link: ${REPO} · #${NUMBER}"
+          }
+
+          if [ "$EVENT" = schedule ] || [ "$EVENT" = workflow_dispatch ]; then
+            remind
+            exit 0
+          fi
+          find_main
+          case "$EVENT/$ACTION" in
+            pull_request/labeled | pull_request_target/labeled)
+              if [ "$(jq '.requested_reviewers | length' <<<"$PR")" = 0 ]; then
+                echo "지정된 리뷰어 없음"
+              elif [ -z "$MAIN_TS" ]; then
+                post_main
+              else
+                M=""
+                for r in $(jq -r '.requested_reviewers[].login' <<<"$PR"); do M+=" $(mention "$r")"; done
+                post ":repeat: 다시 리뷰 부탁드려요${M}" "$MAIN_TS"
+              fi
+              ;;
+            pull_request/review_requested | pull_request_target/review_requested)
+              R=$(jq -r .requested_reviewer.login "$EV")
+              if [ -z "$MAIN_TS" ]; then
+                post_main
+              elif [[ $MAIN_TEXT == *"$(mention "$R")"* ]] && [ $(( $(date +%s) - ${MAIN_TS%.*} )) -lt 120 ]; then
+                echo "방금 올린 메시지에 이미 있음: $R"
+              else
+                post ":bust_in_silhouette: $(mention "$R") 님 리뷰 부탁드려요" "$MAIN_TS"
+              fi
+              ;;
+            pull_request/closed | pull_request_target/closed)
+              if [ -n "$MAIN_TS" ]; then
+                EMOJI=x
+                [ "$(jq -r .merged <<<"$PR")" = true ] && EMOJI=git-merged
+                api reactions.add "$(jq -n --arg c "$SLACK_CHANNEL_ID" --arg ts "$MAIN_TS" --arg e "$EMOJI" \
+                  '{channel:$c, timestamp:$ts, name:$e}')" || true
+              fi
+              ;;
+            *)
+              C=$(jq -c '.comment // .review' "$EV")
+              WHO=$(jq -r .user.login <<<"$C")
+              if [ -z "$MAIN_TS" ]; then
+                echo "알림을 보낸 PR이 아님"
+              elif [ "$(jq -r .user.type <<<"$C")" = Bot ]; then
+                echo "봇 코멘트: $WHO"
+              elif [ "$EVENT" = pull_request_review ] && [ "$(jq -r .state <<<"$C")" = approved ]; then
+                post ":white_check_mark: $(display "$WHO") 님이 승인했어요 · <$(jq -r .html_url <<<"$C")|보기>" "$MAIN_TS"
+                [[ " $MAIN_REACTIONS " == *" git-approved "* ]] ||
+                  api reactions.add "$(jq -n --arg c "$SLACK_CHANNEL_ID" --arg ts "$MAIN_TS" \
+                    '{channel:$c, timestamp:$ts, name:"git-approved"}')" || true
+              else
+                post ":speech_balloon: $(display "$WHO") 님이 코멘트를 남겼어요 · <$(jq -r .html_url <<<"$C")|보기>" "$MAIN_TS"
+                [[ " $MAIN_REACTIONS " == *" git-comment-add "* ]] ||
+                  api reactions.add "$(jq -n --arg c "$SLACK_CHANNEL_ID" --arg ts "$MAIN_TS" \
+                    '{channel:$c, timestamp:$ts, name:"git-comment-add"}')" || true
+              fi
+              ;;
+          esac
