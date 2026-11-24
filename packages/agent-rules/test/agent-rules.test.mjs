@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readlinkSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -14,6 +16,7 @@ import { after, describe, it } from "node:test";
 import { check, init, sync } from "../src/commands.mjs";
 import {
   BEGIN,
+  CLAUDE_LINK,
   END,
   detectPresets,
   listPresets,
@@ -93,6 +96,11 @@ describe("패키지 규칙 원본", () => {
     assert.equal(new Set(names).size, names.length);
   });
 
+  it("공통 파일마다 블록 목록에 붙일 when이 있다", () => {
+    for (const file of presets.flatMap((preset) => preset.files))
+      assert.ok(file.when, `${file.name}에 when이 없다`);
+  });
+
   it("규칙이 가리키는 [ID]는 모두 있는 규칙이다", () => {
     const index = ruleIndex(presets);
     for (const rule of index.values())
@@ -108,6 +116,20 @@ describe("규칙 파일 읽기", () => {
     );
     assert.equal(parsed.sections.length, 1);
     assert.match(parsed.sections[0].text, /## QA 시나리오/);
+  });
+
+  it("frontmatter의 when을 읽고 사본의 frontmatter에서는 뺀다", () => {
+    const parsed = parseRuleFile(
+      "---\nwhen: '테스트를 쓸 때'\npaths:\n  - 'src/**'\n---\n\n# 제목\n",
+    );
+    assert.equal(parsed.when, "테스트를 쓸 때");
+    assert.equal(parsed.frontmatter, "---\npaths:\n  - 'src/**'\n---\n");
+  });
+
+  it("when만 있는 frontmatter는 사본에 남기지 않는다", () => {
+    const parsed = parseRuleFile("---\nwhen: '규칙을 고칠 때'\n---\n\n# 제목\n");
+    assert.equal(parsed.when, "규칙을 고칠 때");
+    assert.equal(parsed.frontmatter, null);
   });
 
   it("ID가 없는 ## 제목은 오류다", () => {
@@ -167,6 +189,33 @@ describe("init", () => {
     assert.equal(scripts.lint, "eslint .");
     assert.match(read(dir, ".prettierignore"), /\.agents\/rules\/common\//);
     assert.deepEqual(check(dir).errors, []);
+  });
+
+  it("블록의 공통 파일 목록에 언제 읽는지를 붙이고 사본에는 when을 남기지 않는다", () => {
+    const dir = repo();
+    init(dir);
+    const agents = read(dir, "AGENTS.md");
+    assert.match(agents, /같은 이름의 `\.agents\/rules\/custom\/` 파일이 있으면 함께 읽는다/);
+    assert.match(agents, /^- 테스트를 쓸 때는 \[testing\]\(\.agents\/rules\/common\/testing\.md\)$/m);
+    assert.doesNotMatch(read(dir, ".agents/rules/common/testing.md"), /^when:/m);
+    assert.ok(read(dir, ".agents/rules/common/rule-format.md").startsWith("<!--"));
+  });
+
+  it(".claude/rules에 규칙 폴더를 연결한다", () => {
+    const dir = repo();
+    init(dir);
+    const link = join(dir, CLAUDE_LINK);
+    assert.ok(lstatSync(link).isSymbolicLink());
+    assert.equal(readlinkSync(link), "../../.agents/rules");
+    assert.ok(existsSync(join(dir, ".claude/rules/agent-rules/common/testing.md")));
+  });
+
+  it(".claude/rules/agent-rules가 다른 것으로 있으면 덮지 않고 알린다", () => {
+    const dir = repo({ ".claude/rules/agent-rules/mine.md": "내 규칙\n" });
+    const { todo } = init(dir);
+    assert.ok(todo.some((line) => line.includes(CLAUDE_LINK)));
+    assert.equal(read(dir, ".claude/rules/agent-rules/mine.md"), "내 규칙\n");
+    assert.ok(check(dir).errors.some((e) => e.includes(CLAUDE_LINK)));
   });
 
   it("손으로 쓴 AGENTS.md는 제목 아래에 블록만 넣고 내용을 그대로 둔다", () => {
@@ -290,6 +339,36 @@ describe("check", () => {
     sync(dir);
     write(dir, "AGENTS.md", read(dir, "AGENTS.md").replace("# 공통 규칙", "# 공통"));
     assert.ok(check(dir).errors.some((e) => e.includes("블록")));
+  });
+
+  it(".claude/rules 연결이 없으면 실패한다", () => {
+    const dir = repo({ "AGENTS.md": AGENTS });
+    sync(dir);
+    rmSync(join(dir, CLAUDE_LINK));
+    assert.ok(check(dir).errors.some((e) => e.includes(CLAUDE_LINK)));
+  });
+
+  it("AGENTS.md가 없는 규칙 파일을 링크하면 실패한다", () => {
+    const text = AGENTS.replace(
+      "## 예외",
+      "## 규칙 파일\n\n- 결제를 다룰 때는 [payment.md](.agents/rules/custom/payment.md)\n\n## 예외",
+    );
+    const dir = repo({ "AGENTS.md": text });
+    sync(dir);
+    assert.ok(check(dir).errors.some((e) => e.includes(".agents/rules/custom/payment.md")));
+    mkdirSync(join(dir, ".agents/rules/custom"));
+    write(dir, ".agents/rules/custom/payment.md", "# 결제\n");
+    assert.deepEqual(check(dir).errors, []);
+  });
+
+  it("견본의 [예: …] 줄에 있는 링크는 검사하지 않는다", () => {
+    const text = AGENTS.replace(
+      "## 예외",
+      "## 규칙 파일\n\n- [예: 결제를 다룰 때는 [payment.md](.agents/rules/custom/payment.md)]\n\n## 예외",
+    );
+    const dir = repo({ "AGENTS.md": text });
+    sync(dir);
+    assert.deepEqual(check(dir).errors, []);
   });
 
   it("블록 밖을 고치는 것은 검사하지 않는다", () => {

@@ -23,7 +23,7 @@
 - 설치: [예: `pnpm bootstrap`. 사설 패키지 401이면 `gh auth refresh -h github.com -s read:packages`]
 - env: [예: `.env.local`을 쓴다. 값은 팀 비밀 저장소의 web-dev 항목에서 받고, 여기에는 쓰지 않는다]
 - 로컬 실행에 필요한 외부 의존: [예: 개발 API 서버. VPN이 필요하다] <!-- [선택] 있을 때만 -->
-- 요구사항 출처와 우선순위: [예: Jira 이슈(ABC-NNNN) > PRD > 현재 스펙 > 현재 코드 > 프로토타입]
+- 요구사항 출처와 우선순위: [예: Jira 이슈(ABC-NNNN) > PRD > 현재 코드 > 프로토타입]
 - 출처가 다른 레포에 있으면 읽는 법: [예: `gh api repos/acme/web-prd/contents/prd.md -H "Accept: application/vnd.github.raw"`] <!-- [선택] 있을 때만 -->
 - 큰 변경으로 보는 영역: [사람 · 예: 인증·세션, 결제, 배포·CI, 외부 쓰기, 공개 API 발행]
 - 확인받을 작업: [사람 · 예: 패키지 추가. 먼저 묻고 승인받는다] <!-- [선택] [BASE-CONFIRM] 말고 이 레포에만 있는 것 -->

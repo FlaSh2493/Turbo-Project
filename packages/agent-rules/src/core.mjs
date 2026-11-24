@@ -34,6 +34,13 @@ export function parseRuleFile(text, source = "") {
     frontmatter = body.slice(0, end + 5);
     body = body.slice(end + 5);
   }
+  const when = frontmatter
+    ? (parseYaml(frontmatter.slice(4, -4))?.when ?? null)
+    : null;
+  if (frontmatter) {
+    frontmatter = frontmatter.replace(/^when:.*\n/m, "");
+    if (frontmatter === "---\n---\n") frontmatter = null;
+  }
   const head = [];
   const sections = [];
   let current = null;
@@ -58,6 +65,7 @@ export function parseRuleFile(text, source = "") {
   }
   return {
     frontmatter,
+    when,
     head: head.join("\n").trim(),
     sections: sections.map(({ lines, ...rest }) => ({
       ...rest,
@@ -231,7 +239,8 @@ export function generate(root, rulesDir = RULES_DIR) {
         path,
         `${pathsFor(file.frontmatter, root)}${FILE_NOTE}\n\n${joinBlocks(file.head, ...file.sections.map((s) => s.text))}\n`,
       );
-      links.push(`- [${file.name}](${path})`);
+      const link = `[${file.name}](${path})`;
+      links.push(file.when ? `- ${file.when}는 ${link}` : `- ${link}`);
     }
   }
 
@@ -243,7 +252,7 @@ export function generate(root, rulesDir = RULES_DIR) {
     "",
     `# 공통 규칙\n\n${joinBlocks(...common)}`,
     "",
-    `공통 규칙 파일:\n\n${links.join("\n")}`,
+    `공통 규칙 파일. 같은 이름의 \`${CUSTOM_OUT}/\` 파일이 있으면 함께 읽는다.\n\n${links.join("\n")}`,
     "",
     END,
   ]
@@ -269,6 +278,22 @@ export const markdownIn = (root, dir) =>
         .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
         .map((entry) => `${dir}/${entry.name}`)
     : [];
+
+export const CLAUDE_LINK = ".claude/rules/agent-rules";
+export const CLAUDE_LINK_TARGET = `../../${RULES_OUT}`;
+
+const RULE_LINK = /\]\((\.agents\/rules\/[^)#\s]+)/g;
+
+export const brokenRuleLinks = (root, agentsText) => [
+  ...new Set(
+    agentsText
+      .split("\n")
+      .filter((line) => !line.includes("[예:"))
+      .flatMap((line) => [...line.matchAll(RULE_LINK)])
+      .map((match) => match[1])
+      .filter((path) => !existsSync(join(root, path))),
+  ),
+];
 
 export function validate(root, generated) {
   if (!generated.agentsText)

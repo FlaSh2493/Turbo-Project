@@ -1,4 +1,5 @@
 ---
+when: '라우트, 서버·클라이언트 경계, proxy를 다룰 때'
 paths:
   - 'src/app/**'
   - 'src/proxy.ts'
