@@ -2,7 +2,7 @@
   "name": "@turbo-project/governance",
   "version": "0.0.0",
   "private": true,
-  "description": "팀 레포 공통 거버넌스. 위험 등급 판정과 공통 기준(criteria.md)을 들고, 레포에는 CODEOWNERS와 PR 템플릿을 처음 한 번 만든다",
+  "description": "팀 레포 공통 머지 게이트. 로컬에서 테스트 없음과 동등 변이를 판정해 PR 본문에 남기고, CI에서 그 판정과 검사 우회를 확인한다",
   "type": "module",
   "bin": {
     "governance": "./cli.mjs"

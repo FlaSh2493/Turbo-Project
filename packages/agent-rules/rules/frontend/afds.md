@@ -1,4 +1,5 @@
 ---
+when: 'afds 컴포넌트와 스타일을 쓸 때'
 paths:
   - 'src/**/*.tsx'
 ---

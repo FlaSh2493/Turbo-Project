@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { prompt } from "../../scripts/risk-judge.mjs";
 import {
   checkBaseBranch,
+  isPromotion,
   isRevertPr,
   originalPrNumber,
-} from "../../scripts/risk-tier.mjs";
+} from "../../scripts/pr-rules.mjs";
 
 describe("main으로 가는 PR의 출처 브랜치", () => {
   for (const head of ["develop", "staging", "hotfix/ABC-8679", "release/abc-8721"]) {
@@ -82,30 +82,11 @@ describe("원래 PR 번호", () => {
   });
 });
 
-describe("위험 판정 프롬프트", () => {
-  it("criteria.md의 high·medium·테스트 없음 표를 그대로 넣고, 기계 판정 부분은 넣지 않는다", () => {
-    const text = prompt("origin/develop");
-    assert.match(text, /\| untestable +\| 테스트가 증명하지 못함/);
-    assert.match(text, /\| wider-access +\| 권한이 넓어짐/);
-    assert.match(text, /\| new-pattern +\| 새 패턴/);
-    assert.match(text, /\| missing-test +\| 테스트 없음/);
-    assert.doesNotMatch(text, /기계가 정한다/);
-  });
-
-  it("모든 신호를 한 줄씩 답하게 한다", () => {
-    const text = prompt("origin/develop");
-    for (const key of ["untestable", "wider-access", "external-effect", "bulk-change", "stored-format", "new-pattern", "missing-test"])
-      assert.match(text, new RegExp(`^- ${key}: 있음\\|없음 — 이유$`, "m"));
-  });
-
-  it("레포 기준 문서를 따로 읽게 하지 않는다", () => {
-    const text = prompt("origin/develop");
-    assert.doesNotMatch(text, /docs\/governance\.md/);
-    assert.doesNotMatch(text, /AGENTS\.md/);
-  });
-
-  it("공통 기준을 고치면 프롬프트가 따라 바뀐다", () => {
-    const text = prompt("origin/develop", "### high: x\n\n| untestable | 바뀐 정의 |\n\n아래는 기계가 정한다.");
-    assert.match(text, /바뀐 정의/);
+describe("승격·백포트", () => {
+  it("보호 브랜치끼리 오가는 PR만 승격·백포트다", () => {
+    assert.equal(isPromotion("develop", "main"), true);
+    assert.equal(isPromotion("main", "develop"), true);
+    assert.equal(isPromotion("feat/x", "develop"), false);
+    assert.equal(isPromotion("develop", "feat/x"), false);
   });
 });

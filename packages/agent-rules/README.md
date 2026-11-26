@@ -8,6 +8,7 @@
 | --- | --- |
 | `AGENTS.md` | 없을 때만 만듭니다. 빈칸이 있는 견본입니다 |
 | `.agents/rules/common/*.md` | 공통 규칙 파일입니다. `react`면 `fsd`, `next`면 `nextjs`처럼 의존성으로 고릅니다. 돌릴 때마다 다시 쓰고, 버전에 없는 파일은 지웁니다 |
+| `.claude/rules/agent-rules` | `.agents/rules/`를 가리키는 심볼릭 링크입니다. Claude Code가 규칙 파일의 `paths`에 맞는 파일을 다룰 때 그 규칙을 자동으로 읽습니다. 같은 이름이 다른 것으로 있으면 덮지 않고 알립니다 |
 
 ## 다른 파일에 더하거나 고치는 것
 
@@ -19,6 +20,17 @@
 
 블록과 `common/` 말고는 건드리지 않습니다. 레포 규칙은 `AGENTS.md`의 `# 레포 규칙`과 `.agents/rules/custom/`에 씁니다.
 
+## 규칙이 읽히는 길
+
+- `AGENTS.md`는 세션마다 읽힙니다. 언제 무엇을 할지(플랜을 쓸지, QA 시나리오를 쓸지)는 블록 본문에 둡니다. 판단을 링크 너머에 두지 않습니다.
+- 블록의 공통 파일 목록은 "언제 읽는지"와 함께 링크합니다. 문구는 규칙 파일 frontmatter의 `when`에서 가져오고, 사본에서는 `when`을 뺍니다. 같은 이름의 `custom/` 파일은 함께 읽습니다.
+- Claude Code는 `.claude/rules/agent-rules` 링크로 `paths`에 맞는 규칙을 자동으로 읽습니다. 다른 에이전트는 블록의 링크를 따라갑니다.
+- `check`는 `AGENTS.md`의 `.agents/rules/` 링크가 가리키는 파일이 있는지도 봅니다. 견본의 `[예: …]` 줄은 보지 않습니다.
+
+## 플랜
+
+플랜은 Claude Code 플랜 모드로 쓰고 Claude Code 기본 위치(`~/.claude/plans/`)에 그대로 둡니다. 레포에 커밋하지 않습니다. 작업하던 세션에서는 대화에 플랜이 있고, 새 세션에서는 사용자가 준 경로나 티켓 키, 기능 이름으로 그 폴더를 찾습니다. 규칙은 `plan.md`의 `[PLAN-FIND]`에 있습니다.
+
 ## 사람이 돌릴 명령어
 
 | 언제 | 명령어 |
@@ -26,6 +38,7 @@
 | 처음 | `pnpm add -D -E @turbo-project/agent-rules` → `pnpm exec agent-rules init` |
 | 버전을 올릴 때 | `package.json`의 `@turbo-project/agent-rules` 버전을 바꾸고 `pnpm i` → `pnpm agents:init` |
 | 커밋하기 전 | `pnpm agents:check` |
+
 
 ## init 뒤에 채울 것
 

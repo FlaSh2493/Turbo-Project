@@ -22,7 +22,7 @@ if (command === "init" || command === "sync") {
   process.exitCode = errors.length === 0 ? 0 : 1;
 } else {
   console.log(`사용법: agent-rules <init|check>
-  init   처음 적용할 때와 버전을 올린 뒤 돌립니다. 없는 견본·스크립트를 만들고, AGENTS.md 블록과 .agents/rules/common/을 설치된 버전으로 다시 씁니다. 레포가 쓴 곳은 바꾸지 않습니다
-  check  공통 규칙 사본과 AGENTS.md 블록·예외를 검사합니다`);
+  init   처음 적용할 때와 버전을 올린 뒤 돌립니다. 없는 견본·스크립트를 만들고, AGENTS.md 블록과 .agents/rules/common/을 설치된 버전으로 다시 쓰고 .claude/rules에 연결합니다. 레포가 쓴 곳은 바꾸지 않습니다
+  check  공통 규칙 사본, AGENTS.md 블록·예외·규칙 링크, .claude/rules 연결을 검사합니다`);
   process.exitCode = command ? 1 : 0;
 }

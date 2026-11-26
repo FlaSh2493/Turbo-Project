@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@stryker-mutator/core": "10.1.1",
-    "@stryker-mutator/vitest-runner": "10.1.1"
+    "@stryker-mutator/vitest-runner": "10.1.1",
+    "minimatch": "10.2.6"
   },
   "peerDependencies": {
     "vitest": ">=2.0.0"
