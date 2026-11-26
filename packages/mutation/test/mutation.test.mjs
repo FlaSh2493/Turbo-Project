@@ -20,6 +20,15 @@ import {
   strykerBin,
 } from "../src/mutation.mjs";
 import base from "../src/base.mjs";
+import {
+  changedLines,
+  mutateList,
+  mutateMatcher,
+  mutatePatterns,
+  survivorLine,
+  survivors,
+  unquotePath,
+} from "../src/changed.mjs";
 
 const dirs = [];
 after(() =>
@@ -51,9 +60,13 @@ describe("base", () => {
     assert.equal(base.thresholds.break, null);
   });
 
-  it("레포가 정하지 않아도 lib 폴더의 순수 함수를 대상으로 한다", () => {
-    assert.equal(base.mutate[0], "src/**/lib/**/*.ts");
+  it("레포가 정하지 않아도 src의 .ts 파일 전체를 대상으로 하고 테스트는 뺀다", () => {
+    assert.equal(base.mutate[0], "src/**/*.ts");
     assert.ok(base.mutate.includes("!**/__tests__/**"));
+  });
+
+  it("문자열 변이는 만들지 않는다", () => {
+    assert.deepEqual(base.mutator.excludedMutations, ["StringLiteral"]);
   });
 
   it("Stryker 실행 파일을 찾는다", () => {
@@ -169,5 +182,154 @@ describe("check", () => {
   it("test:mutation 스크립트가 다르면 실패한다", () => {
     const dir = repo({ "package.json": pkg({ "test:mutation": "stryker run" }) });
     assert.equal(check(dir).errors.length, 1);
+  });
+});
+
+const DIFF = `diff --git a/src/api/pause.ts b/src/api/pause.ts
+--- a/src/api/pause.ts
++++ b/src/api/pause.ts
+@@ -10,0 +11,3 @@ export function pause() {
++  if (ids.length > 50) throw new Error("too many");
++  const result = [];
++  return result;
+@@ -30,2 +33 @@ function other() {
+-  a();
+-  b();
++  c();
+@@ -40,3 +40,0 @@ function gone() {
+-  x();
+diff --git a/src/api/pause.test.ts b/src/api/pause.test.ts
+--- a/src/api/pause.test.ts
++++ b/src/api/pause.test.ts
+@@ -1,0 +2,2 @@
++  it("x", () => {});
++  it("y", () => {});
+diff --git a/src/old.ts b/src/old.ts
+--- a/src/old.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-export const a = 1;
+-export const b = 2;
+`;
+
+describe("바뀐 줄", () => {
+  it("새 쪽 줄 범위를 파일별로 모으고, 지우기만 한 hunk와 지운 파일은 뺀다", () => {
+    const files = changedLines(DIFF);
+    assert.deepEqual(files.get("src/api/pause.ts"), [
+      [11, 13],
+      [33, 33],
+    ]);
+    assert.equal(files.has("src/old.ts"), false);
+  });
+
+  it("base의 mutate 범위로 거른다: 테스트, 타입 선언, index, tsx, src 밖 파일은 뺀다", () => {
+    const isTarget = mutateMatcher(base.mutate);
+    assert.equal(isTarget("src/api/pause.ts"), true);
+    assert.equal(isTarget("src/api/pause.test.ts"), false);
+    assert.equal(isTarget("src/api/__tests__/pause.ts"), false);
+    assert.equal(isTarget("src/types.d.ts"), false);
+    assert.equal(isTarget("src/api/index.ts"), false);
+    assert.equal(isTarget("src/ui/list.tsx"), false);
+    assert.equal(isTarget("src/api/msw/handlers.ts"), false);
+    assert.equal(isTarget("scripts/release.mjs"), false);
+  });
+
+  it("레포 설정이 있으면 그 mutate 범위를 쓴다", async () => {
+    const dir = repo({
+      "stryker.config.mjs": `${BASE_IMPORT.replace("@turbo-project/mutation/base", BASE_CONFIG)}export default { ...base, mutate: ["src/**/*.ts", "!src/vendor/**"] };\n`,
+    });
+    const isTarget = mutateMatcher(await mutatePatterns(dir));
+    assert.equal(isTarget("src/api/pause.ts"), true);
+    assert.equal(isTarget("src/vendor/sdk.ts"), false);
+  });
+
+  it("Stryker처럼 패턴을 순서대로 적용해 뒤의 포함 패턴이 앞의 제외를 되살린다", () => {
+    const isTarget = mutateMatcher(["src/**/*.ts", "!src/generated/**", "src/generated/keep.ts"]);
+    assert.equal(isTarget("src/generated/keep.ts"), true);
+    assert.equal(isTarget("src/generated/other.ts"), false);
+    assert.equal(isTarget("src/a.ts"), true);
+  });
+
+  it("./로 시작하는 패턴도 Stryker처럼 같은 파일로 본다. 제외 패턴도 같다", () => {
+    const isTarget = mutateMatcher(["./src/**/*.ts", "!./src/generated/**"]);
+    assert.equal(isTarget("src/a.ts"), true);
+    assert.equal(isTarget("src/generated/x.ts"), false);
+  });
+
+  it("minimatch 문법(대괄호)을 Stryker와 같게 읽고, 닫히지 않은 중괄호에서 멈추지 않는다", () => {
+    assert.equal(mutateMatcher(["src/[ab].ts"])("src/a.ts"), true);
+    assert.equal(mutateMatcher(["src/[ab].ts"])("src/c.ts"), false);
+    assert.equal(mutateMatcher(["src/a{.ts"])("src/a.ts"), false);
+  });
+
+  it("레포 설정이 없으면 base의 mutate를 쓴다", async () => {
+    assert.deepEqual(await mutatePatterns(repo()), base.mutate);
+  });
+
+  it("git이 따옴표로 감싼 경로를 되돌린다", () => {
+    assert.equal(unquotePath('"b/src/\\355\\225\\234\\352\\270\\200.ts"'), "b/src/한글.ts");
+    assert.equal(unquotePath('"b/src/a \\"b\\".ts"'), 'b/src/a "b".ts');
+    assert.equal(unquotePath("b/src/a.ts"), "b/src/a.ts");
+    const quoted = changedLines('+++ "b/src/\\355\\225\\234.ts"\n@@ -0,0 +1 @@\n+x\n');
+    assert.deepEqual([...quoted.keys()], ["src/한.ts"]);
+  });
+
+  it("Stryker --mutate 형식(파일:시작-끝)으로 바꾼다", () => {
+    assert.deepEqual(mutateList(changedLines(DIFF), mutateMatcher(base.mutate)), [
+      "src/api/pause.ts:11-13",
+      "src/api/pause.ts:33-33",
+    ]);
+  });
+});
+
+describe("살아남은 변이", () => {
+  const report = {
+    files: {
+      "src/b.ts": {
+        mutants: [
+          { status: "Killed", mutatorName: "EqualityOperator", replacement: "<", location: { start: { line: 3 } } },
+          { status: "Survived", mutatorName: "ConditionalExpression", replacement: "true", location: { start: { line: 9 } } },
+        ],
+      },
+      "src/a.ts": {
+        mutants: [
+          { status: "NoCoverage", mutatorName: "BlockStatement", replacement: "{\n}", location: { start: { line: 4 } } },
+          { status: "Timeout", mutatorName: "UpdateOperator", replacement: "i--", location: { start: { line: 5 } } },
+        ],
+      },
+    },
+  };
+
+  it("Survived와 NoCoverage만 파일, 줄 순서로 돌려준다", () => {
+    assert.deepEqual(
+      survivors(report).map(({ file, line, status }) => `${file}:${line} ${status}`),
+      ["src/a.ts:4 NoCoverage", "src/b.ts:9 Survived"],
+    );
+  });
+
+  it("같은 줄의 변이는 열 순서로 둔다", () => {
+    const sameLine = {
+      files: {
+        "src/c.ts": {
+          mutants: [
+            { status: "Survived", mutatorName: "BooleanLiteral", replacement: "false", location: { start: { line: 2, column: 20 } } },
+            { status: "Survived", mutatorName: "BooleanLiteral", replacement: "false", location: { start: { line: 2, column: 9 } } },
+          ],
+        },
+      },
+    };
+    assert.deepEqual(
+      survivors(sameLine).map(({ column }) => column),
+      [9, 20],
+    );
+  });
+
+  it("리포트가 비어 있으면 없다", () => {
+    assert.deepEqual(survivors({ files: {} }), []);
+    assert.deepEqual(survivors(null), []);
+  });
+
+  it("한 줄로 보여 줄 때 바뀐 코드의 줄바꿈을 접는다", () => {
+    assert.equal(survivorLine(survivors(report)[0]), "src/a.ts:4:0 | BlockStatement | { }");
   });
 });

@@ -27,6 +27,10 @@
 - Claude Code는 `.claude/rules/agent-rules` 링크로 `paths`에 맞는 규칙을 자동으로 읽습니다. 다른 에이전트는 블록의 링크를 따라갑니다.
 - `check`는 `AGENTS.md`의 `.agents/rules/` 링크가 가리키는 파일이 있는지도 봅니다. 견본의 `[예: …]` 줄은 보지 않습니다.
 
+## 플랜
+
+플랜은 Claude Code 플랜 모드로 쓰고 Claude Code 기본 위치(`~/.claude/plans/`)에 그대로 둡니다. 레포에 커밋하지 않습니다. 작업하던 세션에서는 대화에 플랜이 있고, 새 세션에서는 사용자가 준 경로나 티켓 키, 기능 이름으로 그 폴더를 찾습니다. 규칙은 `plan.md`의 `[PLAN-FIND]`에 있습니다.
+
 ## 사람이 돌릴 명령어
 
 | 언제 | 명령어 |
@@ -34,6 +38,7 @@
 | 처음 | `pnpm add -D -E @turbo-project/agent-rules` → `pnpm exec agent-rules init` |
 | 버전을 올릴 때 | `package.json`의 `@turbo-project/agent-rules` 버전을 바꾸고 `pnpm i` → `pnpm agents:init` |
 | 커밋하기 전 | `pnpm agents:check` |
+
 
 ## init 뒤에 채울 것
 

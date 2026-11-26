@@ -13,9 +13,13 @@ export const BASE_CONFIG = join(
 export const SCRIPT = "mutation run";
 export const IGNORES = [".stryker-tmp*", "reports/mutation"];
 export const AGENTS_FILE = "AGENTS.md";
-export const AGENTS_LINE =
-  "- `lib/`의 순수 함수를 바꿨으면 push 전에 `pnpm test:mutation --mutate '<파일>'`을 돌린다. CI에서는 돌지 않는다. 살아남은 변이는 테스트로 잡고, 잡을 수 없는 동등 변이만 PR 본문에 `파일:라인 | 변이 | 이유`로 남긴다.";
-export const AGENTS_BLOCK = `<!-- BEGIN:mutation -->\n## 뮤테이션\n\n${AGENTS_LINE}\n<!-- END:mutation -->`;
+export const AGENTS_LINES = [
+  "- `.ts` 코드를 바꿨으면 push 전에 `pnpm test:mutation --changed`로 바뀐 줄만 뮤테이션 테스트를 돌린다. 머지 게이트에서도 같은 명령이 다시 돈다.",
+  "- 살아남은 변이는 `pnpm exec mutation survivors`로 본다. 먼저 테스트를 더해 잡고, 못 잡으면 코드를 줄여 변이가 생길 자리를 없앤다.",
+  "- 그래도 남은 변이는 직접 동등 변이라고 정하지 않는다. `pnpm exec governance judge`가 별도 Claude 세션으로 판정하고, 동등 변이로 판정된 것만 집계에서 빠진다.",
+  "- `// Stryker disable` 주석은 쓰지 않는다.",
+];
+export const AGENTS_BLOCK = `<!-- BEGIN:mutation -->\n## 뮤테이션\n\n${AGENTS_LINES.join("\n")}\n<!-- END:mutation -->`;
 const BLOCK = /<!-- BEGIN:mutation -->[\s\S]*?<!-- END:mutation -->/;
 const STRYKER_CONFIG = /^\.?stryker\.(conf|config)\.(json|js|mjs|cjs)$/;
 const LOCKED = ["testRunner", "plugins"];

@@ -378,3 +378,27 @@ describe("check", () => {
     assert.deepEqual(check(dir).errors, []);
   });
 });
+
+describe("플랜", () => {
+  it("공통 규칙은 docs/plans를 가리키지 않고, 워크트리와 플랜 찾는 법을 담는다", () => {
+    const dir = repo({ "AGENTS.md": AGENTS });
+    init(dir);
+    const all = [
+      read(dir, "AGENTS.md"),
+      read(dir, ".agents/rules/common/plan.md"),
+      read(dir, ".agents/rules/common/qa-scenario.md"),
+    ].join("\n");
+    assert.doesNotMatch(all, /docs\/plans/);
+    assert.match(all, /\.claude\/worktrees/);
+    assert.match(all, /## \[PLAN-FIND\] 찾는 법/);
+    assert.match(all, /PR 본문으로 플랜을 대신하지 않는다/);
+    assert.match(all, /### 직접 확인할 것/);
+    assert.equal(existsSync(join(dir, ".agents/rules/common/docs.md")), false);
+  });
+
+  it(".claude/settings.json은 만들지 않는다", () => {
+    const dir = repo({ "AGENTS.md": AGENTS });
+    init(dir);
+    assert.equal(existsSync(join(dir, ".claude/settings.json")), false);
+  });
+});

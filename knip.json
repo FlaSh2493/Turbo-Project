@@ -92,10 +92,12 @@
     "packages/afds-registry/src/lib/build-shadcn-registry.ts": ["types"],
     "packages/afds-registry/src/types/index.ts": ["types"],
     "packages/agent-rules/src/core.mjs": ["exports"],
-    "packages/governance/scripts/risk-judge.mjs": ["exports"],
-    "packages/governance/scripts/risk-tier.mjs": ["exports"],
+    "packages/governance/scripts/gate.mjs": ["exports"],
+    "packages/governance/scripts/pr-rules.mjs": ["exports"],
+    "packages/governance/scripts/verification.mjs": ["exports"],
     "packages/governance/src/governance.mjs": ["exports"],
     "packages/governance/src/hooks.mjs": ["exports"],
+    "packages/mutation/src/changed.mjs": ["exports"],
     "packages/mutation/src/mutation.mjs": ["exports"]
   }
 }

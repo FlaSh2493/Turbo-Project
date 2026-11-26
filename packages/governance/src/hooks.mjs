@@ -119,7 +119,7 @@ export function addPrePushHook(root) {
   if (tool) {
     const where = tool.install(root);
     return where
-      ? { done: `${tool.name}의 pre-push 훅(${where})에 등급 판정을 넣었습니다.` }
+      ? { done: `${tool.name}의 pre-push 훅(${where})에 검증 판정을 넣었습니다.` }
       : {};
   }
   const result = installGitHook(root);
@@ -127,6 +127,6 @@ export function addPrePushHook(root) {
   const prepare = addPrepare(root);
   if (!result.installed && !prepare) return {};
   return {
-    done: `훅 도구가 없어 git pre-push 훅에 등급 판정을 넣었습니다.${prepare ? ` 팀원 PC에도 깔리도록 package.json prepare에 \`${INSTALL_SCRIPT}\`을 더했습니다.` : ""}`,
+    done: `훅 도구가 없어 git pre-push 훅에 검증 판정을 넣었습니다.${prepare ? ` 팀원 PC에도 깔리도록 package.json prepare에 \`${INSTALL_SCRIPT}\`을 더했습니다.` : ""}`,
   };
 }
